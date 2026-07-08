@@ -9,6 +9,11 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
+    os.makedirs("logs", exist_ok=True)
+    log_path = os.path.join("logs", "app.log")
+    with open (log_path, "a") as logfile:
+        logfile.write("the system worked✔️")
+        print("the system worked✔️")
     hobbies={
         # "gaming" , "coding" , "reading"
     }

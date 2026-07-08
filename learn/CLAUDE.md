@@ -43,6 +43,10 @@ If Flask is missing: `pip install flask`.
   `/user/25` hits `user_age` and `/user/itay` hits `user_name`. Adding overlapping
   `/user/...` routes requires care about converter precedence.
 - Handlers that call `render_template("home.html")` resolve names against `templates/`.
-  Returning a plain string (as in `/about`) sends it as the response body directly.
+  `home()` passes `name` and `hobbies` into the template; other handlers return a plain
+  string (as in `/about`), which is sent as the response body directly.
+- `home()` also appends a line to `logs/app.log` on each visit, creating the `logs/`
+  folder on demand via `os.makedirs(..., exist_ok=True)`. The `logs/` folder and
+  `server_out.log` are generated scratch artifacts, not source — safe to delete.
 
 There is no test suite, linter config, or dependency manifest in this repo.
