@@ -1,5 +1,6 @@
 # http://127.0.0.1:5000
 
+import os
 from flask import render_template
 from flask import Flask
 
@@ -8,8 +9,11 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return render_template("home.html" , name="Human")
-    
+    hobbies={
+        # "gaming" , "coding" , "reading"
+    }
+    return render_template("home.html" , name="Human" , hobbies=hobbies)
+
 @app.route("/about")
 def about():
     return "They not really care about us"

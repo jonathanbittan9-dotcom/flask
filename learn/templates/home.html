@@ -5,6 +5,16 @@
   </head>
   <body>
     <h1>Hello, {{ name }}</h1>
+    {% if hobbies %}
+      <ul>
+        {% for hobbie in hobbies %}
+        <li>{{ hobbie }}</li>
+      {% endfor %}
+    {% else %}
+        <p>go to touch some grass</p>
+    </ul>
+    {% endif %}
+    
     <p>This page lives in its own HTML file.</p>
   </body>
 </html>
