@@ -1,0 +1,15 @@
+{# detail.html - single task page, reached via /task/<id> #}
+{% extends "base.html" %}
+
+{% block title %}Task #{{ task.id }}{% endblock %}
+
+{% block content %}
+    <h1>Task #{{ task.id }}</h1>
+    <p><strong>Title:</strong> {{ task.title }}</p>
+    <p><strong>Status:</strong>
+        {# Jinja inline if/else expression. #}
+        {{ "Done" if task.done else "Not done" }}
+    </p>
+
+    <p><a href="{{ url_for('index') }}">&larr; back to list</a></p>
+{% endblock %}

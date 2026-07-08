@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}About{% endblock %}
+
+{% block content %}
+    <h1>About</h1>
+    <p>This tiny app demonstrates the core Flask features:</p>
+    <ul>
+        <li><strong>Routes</strong> — URLs mapped to Python functions with <code>@app.route</code>.</li>
+        <li><strong>Templates</strong> — HTML files in <code>templates/</code> rendered with <code>render_template</code>.</li>
+        <li><strong>Inheritance</strong> — <code>base.html</code> defines blocks, other templates fill them.</li>
+        <li><strong>Forms + POST</strong> — submit data, then redirect (Post/Redirect/Get).</li>
+        <li><strong>url_for</strong> — build URLs from function names, never hard-coded.</li>
+        <li><strong>flash</strong> — one-time messages that show on the next page.</li>
+        <li><strong>Static files</strong> — CSS served from <code>static/</code>.</li>
+        <li><strong>Error handlers</strong> — custom 404 page.</li>
+    </ul>
+{% endblock %}

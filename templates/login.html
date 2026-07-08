@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Log in{% endblock %}
+
+{% block content %}
+    <h1>Log in</h1>
+
+    {# A normal HTML form. method="post" sends the fields to the same
+       URL as a POST request, where our /login view checks them. #}
+    <form action="{{ url_for('login') }}" method="post">
+        <p>
+            <label>Username
+                <input name="username" autofocus required>
+            </label>
+        </p>
+        <p>
+            <label>Password
+                <input name="password" type="password" required>
+            </label>
+        </p>
+        <button type="submit">Log in</button>
+    </form>
+
+    <p><small>Try <code>itay</code> / <code>1234</code> or <code>admin</code> / <code>secret</code>.</small></p>
+{% endblock %}

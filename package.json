@@ -1,0 +1,40 @@
+{
+  "name": "flask",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "animate.css": "^4.1.1",
+    "autoprefixer": "^10.5.0",
+    "bootstrap": "^5.3.8",
+    "bulma": "^1.0.4",
+    "css-mqpacker": "^7.0.0",
+    "cssnano": "^7.1.9",
+    "foundation-sites": "^6.9.0",
+    "hover.css": "^2.3.2",
+    "less": "^4.6.4",
+    "materialize-css": "^1.0.0",
+    "modern-normalize": "^3.0.1",
+    "normalize.css": "^8.0.1",
+    "postcss": "^8.5.14",
+    "postcss-cli": "^11.0.1",
+    "postcss-import": "^16.1.1",
+    "postcss-nesting": "^14.0.0",
+    "postcss-preset-env": "^11.2.1",
+    "purecss": "^3.0.0",
+    "purgecss": "^8.0.0",
+    "sanitize.css": "^13.0.0",
+    "sass": "^1.99.0",
+    "stylelint": "^17.11.0",
+    "stylus": "^0.64.0",
+    "tailwindcss": "^4.3.0",
+    "uikit": "^3.25.16"
+  }
+}

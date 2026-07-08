@@ -1,0 +1,79 @@
+/* Minimal styling so the app feels like a real site. */
+* { box-sizing: border-box; }
+
+body {
+    font-family: system-ui, sans-serif;
+    max-width: 640px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    color: #222;
+    background: #fafafa;
+}
+
+nav {
+    display: flex;
+    gap: 1rem;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+nav a {
+    text-decoration: none;
+    color: #0366d6;
+}
+nav a:hover { text-decoration: underline; }
+
+h1 { margin-top: 0; }
+
+.add-form { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
+.add-form input {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.add-form button,
+.tasks button {
+    cursor: pointer;
+    border: 1px solid #ccc;
+    background: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+}
+.add-form button { background: #0366d6; color: white; border-color: #0366d6; }
+
+.tasks { list-style: none; padding: 0; }
+.tasks li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    margin-bottom: 0.4rem;
+}
+.tasks li a { flex: 1; color: #222; text-decoration: none; }
+.tasks li a:hover { text-decoration: underline; }
+.tasks li.done a { text-decoration: line-through; color: #999; }
+
+.check { font-family: monospace; }
+.delete { color: #c00; }
+
+.empty { color: #777; font-style: italic; }
+
+.flashes { list-style: none; padding: 0; margin: 0 0 1rem 0; }
+.flash {
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    margin-bottom: 0.4rem;
+}
+.flash-success { background: #d4edda; color: #155724; }
+.flash-error   { background: #f8d7da; color: #721c24; }
+
+code {
+    background: #eee;
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+    font-size: 0.95em;
+}

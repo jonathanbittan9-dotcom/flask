@@ -1,0 +1,44 @@
+{# index.html - home page. Extends base.html and fills in blocks. #}
+{% extends "base.html" %}
+
+{% block title %}My Tasks{% endblock %}
+
+{% block content %}
+    <h1>My Tasks</h1>
+
+    {# Form posts to the `add` view. action= uses url_for so the
+       URL is generated from the Python function name. #}
+    <form method="POST" action="{{ url_for('add') }}" class="add-form">
+        <input name="title" placeholder="New task..." autofocus>
+        <button type="submit">Add</button>
+    </form>
+
+    {# Loop over the list passed from Python.
+       {% if %} / {% else %} handle the empty state. #}
+    {% if tasks %}
+        <ul class="tasks">
+        {% for task in tasks %}
+            <li class="{% if task.done %}done{% endif %}">
+                {# Toggle button - small inline form so we can POST. #}
+                <form method="POST" action="{{ url_for('toggle', task_id=task.id) }}" style="display:inline">
+                    <button type="submit" class="check">
+                        {{ "[x]" if task.done else "[ ]" }}
+                    </button>
+                </form>
+
+                {# Link to the detail page. url_for builds /task/<id>. #}
+                <a href="{{ url_for('detail', task_id=task.id) }}">
+                    {{ task.title }}
+                </a>
+
+                {# Delete button - also a tiny POST form. #}
+                <form method="POST" action="{{ url_for('delete', task_id=task.id) }}" style="display:inline">
+                    <button type="submit" class="delete">delete</button>
+                </form>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p class="empty">No tasks yet. Add your first one above.</p>
+    {% endif %}
+{% endblock %}

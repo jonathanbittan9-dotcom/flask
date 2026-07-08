@@ -1,0 +1,59 @@
+<!--
+    base.html - the shared layout.
+    Other templates "extend" this one and fill in the blocks.
+    This is Jinja2 template inheritance — it keeps you from
+    repeating <html>/<head>/<nav> in every page.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}Flask Todo{% endblock %}</title>
+    <!--
+        url_for('static', filename=...) builds the correct URL
+        to a file in the static/ folder. Never hard-code paths.
+    -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav>
+        <a href="{{ url_for('index') }}">Tasks</a>
+        <a href="{{ url_for('about') }}">About</a>
+        <a href="{{ url_for('profile', name='Itay', age=25) }}">My Profile</a>
+        <a href="{{ url_for('favorite', name='Itay') }}">Favorites</a>
+        <a href="{{ url_for('secret') }}">Secret</a>
+
+        {# `current_user` comes from the context_processor in app.py.
+           It's None when nobody is logged in. #}
+        {% if current_user %}
+            <span>Hi, {{ current_user }}</span>
+            {# Logout is a POST so a stray link/preloader can't log you
+               out by accident. That's why it's a tiny inline form. #}
+            <form action="{{ url_for('logout') }}" method="post" style="display:inline">
+                <button type="submit">Log out</button>
+            </form>
+        {% else %}
+            <a href="{{ url_for('login') }}">Log in</a>
+        {% endif %}
+    </nav>
+
+    <main>
+        <!--
+            get_flashed_messages() pulls one-time messages queued
+            by flash() in the Python code. They appear once, then
+            vanish on the next request.
+        -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                {% for category, msg in messages %}
+                    <li class="flash flash-{{ category }}">{{ msg }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

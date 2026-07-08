@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/jonat/OneDrive/שולחן העבודה/workspace/flask/**)",
+      "Bash(cat CLAUDE.md)",
+      "Bash(cat README*)",
+      "Bash(cat requirements.txt)",
+      "Bash(python -c \"import flask; print\\(flask.__version__\\)\")"
+    ]
+  }
+}

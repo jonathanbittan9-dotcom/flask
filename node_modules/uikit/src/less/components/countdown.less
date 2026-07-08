@@ -1,0 +1,112 @@
+// Name:            Countdown
+// Description:     Component to create countdown timers
+//
+// Component:       `uk-countdown`
+//
+// Sub-objects:     `uk-countdown-number`
+//                  `uk-countdown-separator`
+//                  `uk-countdown-label`
+//
+// ========================================================================
+
+
+// Variables
+// ========================================================================
+
+@countdown-separator-line-height:               2;
+@countdown-separator-font-size:                 0.5em;
+
+
+/* ========================================================================
+   Component: Countdown
+ ========================================================================== */
+
+.uk-countdown {
+    margin: 0;
+    .hook-countdown();
+}
+
+
+/* Item
+ ========================================================================== */
+
+.uk-countdown-number,
+.uk-countdown-separator {
+    .hook-countdown-item();
+}
+
+
+/* Number
+ ========================================================================== */
+
+/*
+ * 1. Make numbers all of the same size to prevent jumping. Must be supported by the font.
+ */
+
+.uk-countdown-number {
+    margin: 0;
+    /* 1 */
+    font-variant-numeric: tabular-nums;
+    .hook-countdown-number();
+}
+
+
+/* Separator
+ ========================================================================== */
+
+.uk-countdown-separator {
+    font-size: @countdown-separator-font-size;
+    line-height: @countdown-separator-line-height;
+    .hook-countdown-separator();
+}
+
+
+/* Label
+ ========================================================================== */
+
+.uk-countdown-label {
+    .hook-countdown-label();
+}
+
+
+// Hooks
+// ========================================================================
+
+.hook-countdown-misc();
+
+.hook-countdown() {}
+.hook-countdown-item() {}
+.hook-countdown-number() {}
+.hook-countdown-separator() {}
+.hook-countdown-label() {}
+.hook-countdown-misc() {}
+
+
+// Inverse
+// ========================================================================
+
+.hook-inverse() {
+
+    .uk-countdown-number,
+    .uk-countdown-separator {
+        .hook-inverse-countdown-item();
+    }
+
+    .uk-countdown-number {
+        .hook-inverse-countdown-number();
+    }
+
+    .uk-countdown-separator {
+        .hook-inverse-countdown-separator();
+    }
+
+    .uk-countdown-label {
+        .hook-inverse-countdown-label();
+    }
+
+}
+
+.hook-inverse-countdown-item() {}
+.hook-inverse-countdown-number() {}
+.hook-inverse-countdown-separator() {}
+.hook-inverse-countdown-label() {}

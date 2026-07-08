@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"import app\")",
+      "Bash(python -c \"import app; print\\('OK - app loaded, routes:', [r.rule for r in app.app.url_map.iter_rules\\(\\)]\\)\")",
+      "Bash(python -c \"import app; c = app.app.test_client\\(\\); print\\('GET /  ->', c.get\\('/'\\).status_code\\); print\\('GET /about ->', c.get\\('/about'\\).status_code\\); print\\('GET /task/1 ->', c.get\\('/task/1'\\).status_code\\); print\\('GET /task/999 ->', c.get\\('/task/999'\\).status_code\\); print\\('POST /add ->', c.post\\('/add', data={'title':'test'}\\).status_code\\)\")",
+      "Bash(python -c \"import app; c = app.app.test_client\\(\\); r = c.get\\('/favorites/Itay'\\); print\\('status:', r.status_code\\); print\\(r.data.decode\\(\\)\\)\")",
+      "Bash(python -c \"import app; c = app.app.test_client\\(\\); r = c.get\\('/profile/Itay/17'\\); print\\('status:', r.status_code\\); print\\(r.data.decode\\(\\)[:500]\\)\")",
+      "Bash(python -c \"import app; c = app.app.test_client\\(\\); r1 = c.get\\('/profile/Itay/17'\\); r2 = c.get\\('/profile/Sara/25'\\); print\\('GET /profile/Itay/17 ->', r1.status_code\\); print\\('GET /profile/Sara/25 ->', r2.status_code\\)\")",
+      "Bash(python -c \"import flask; print\\('Flask', flask.__version__\\)\")",
+      "Bash(python -c ' *)",
+      "Bash(curl -s -i http://127.0.0.1:5000/user/25)",
+      "Bash(kill %1)",
+      "Bash(netstat -ano)",
+      "Bash(tasklist)",
+      "Bash(taskkill //F //PID 10696 //PID 34432 //PID 27788 //PID 19340)"
+    ]
+  }
+}
