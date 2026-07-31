@@ -5,7 +5,10 @@
       "Bash(cat CLAUDE.md)",
       "Bash(cat README*)",
       "Bash(cat requirements.txt)",
-      "Bash(python -c \"import flask; print\\(flask.__version__\\)\")"
+      "Bash(python -c \"import flask; print\\(flask.__version__\\)\")",
+      "Bash(taskkill //F //PID 719)",
+      "Bash(kill 719)",
+      "Bash(taskkill //F //IM python.exe)"
     ]
   }
 }
