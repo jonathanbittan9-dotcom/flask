@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>testing</title>
+    <link rel = "stylesheet" href="{{ url_for('static', filename='testlearn.css') }}">
+</head>
+<body>
+    {% macro chip(label) %}
+        <span class="chip">{{ label }}</span>
+    {% endmacro %}
+
+    {{chip(sports)}}
+    
+    {{chip("python")}}
+    
+</body>
+</html>

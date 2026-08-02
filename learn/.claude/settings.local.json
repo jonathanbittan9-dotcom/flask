@@ -8,7 +8,17 @@
       "Bash(python -c \"import flask; print\\(flask.__version__\\)\")",
       "Bash(taskkill //F //PID 719)",
       "Bash(kill 719)",
-      "Bash(taskkill //F //IM python.exe)"
+      "Bash(taskkill //F //IM python.exe)",
+      "Read(//c/Users/jonat/AppData/Local/Temp/claude/C--Users-jonat-OneDrive--------------workspace-flask-learn/81f43966-c709-447d-8ad3-85e0fbe9e516/scratchpad/**)",
+      "Bash(node -e ' *)",
+      "Artifact",
+      "PowerShell(\"--- parent templates ---\")",
+      "PowerShell(\"--- learn templates ---\")",
+      "PowerShell(\"--- learn static ---\")",
+      "PowerShell(\"--- flask-project ---\")",
+      "Bash(node *)",
+      "Bash(python -c ' *)",
+      "Bash(PYTHONIOENCODING=utf-8 python -c ' *)"
     ]
   }
 }

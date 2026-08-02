@@ -1,0 +1,6 @@
+/* Minimal reset. The hosted single-file build gets this from its host. */
+*, *::before, *::after { box-sizing: border-box; }
+body, h1, h2, h3, p, ul, figure { margin: 0; }
+ul { padding: 0; }
+img, svg { display: block; max-width: 100%; }
+button, input, textarea { font: inherit; color: inherit; }

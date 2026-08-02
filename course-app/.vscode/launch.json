@@ -1,0 +1,38 @@
+{
+  // Press F5 to start the course with the debugger attached.
+  // Breakpoints in app.py will hit; breakpoints in the JavaScript need the
+  // "Course in Chrome" configuration below (start the server first).
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run the course",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/app.py",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "env": {
+        "FLASK_DEBUG": "1"
+      }
+      // app.py opens your default browser by itself a moment after starting.
+      // Set NO_BROWSER to "1" in env above if you would rather it did not.
+    },
+    {
+      "name": "Course in Chrome",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://127.0.0.1:5055",
+      "webRoot": "${workspaceFolder}/static",
+      "pathMapping": {
+        "/static": "${workspaceFolder}/static"
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Course: server + browser",
+      "configurations": ["Run the course", "Course in Chrome"],
+      "stopAll": true
+    }
+  ]
+}
