@@ -5,7 +5,7 @@ import os
 import logging 
 import colorlog
 from logging.handlers import RotatingFileHandler
-
+from flask import jsonify
 
 app = Flask(__name__)
 
@@ -18,7 +18,7 @@ handler.setFormatter(colorlog.ColoredFormatter(
 
     
 ))
-logging.basicConfig(level=os.environ.get("LOG_LEVEL" , "INFO").upper, handlers=[handler]),
+logging.basicConfig(level=logging.DEBUG, handlers=[handler]),
 format=("[%(levelname)s] %(message)s")
 
 # logging.basicConfig(
@@ -30,6 +30,43 @@ format=("[%(levelname)s] %(message)s")
 # )
 log = logging.getLogger(__name__)
 log.info("the system is running✔️")
+
+
+
+
+class Book:
+    def __init__(self, title , author):
+        self.title = title
+        self.author = author
+        self.availbale = True
+
+    def borrow(self):
+        if not self.availbale:
+            return f"{self.title} is already borrowed"
+
+        self.availbale = False
+    # def as_dict(self):
+    #     return{
+    #         "title": self.title,
+    #         "author": self.author,
+    #         "availbale": self.availbale,
+    #     }
+
+book1= Book("Human" , "Einstein")
+book2=Book("1939" , "idk")
+
+@app.route("/books")
+def books():
+    log.info("returned the list of the books📕")
+    all_books= [book1 , book2]
+    return render_template("testlearn.html" , books=all_books)
+    
+@app.route("/borrow/<int:book_id>")
+def borrow(book_id):
+    book = book1 if book_id == 1 else book2
+    return {"message": book.borrow(), "book": book.as_dict()}
+ 
+
 @app.route("/")
 def login():
     return "well you got into the site"
@@ -43,7 +80,6 @@ try:
     1/0
 except ZeroDivisionError:
     log.exception("Math went wrong‼️")
-    log.warning("Math went wrong‼️")
 
 user_id, count = 42 , 7
 log.debug("processing user %s with %d items", user_id , count)
@@ -85,3 +121,19 @@ app.run(debug=True)
 # log = logging.getLogger(__name__)
 # for i in range(200):
 #     log.info("line number %d", i)
+
+# student = {
+#     "name": "Jonathan",
+#     "age": 13,
+#     "grade": 7
+# }
+
+# print(student["name"])   # Jonathan
+
+# numbers = {1, 2, 3, 3, 4, 4}
+
+# print(numbers)
+
+# point = (10, 20)
+
+# print(point[0])  # 10
