@@ -36,9 +36,27 @@ log.info("the system is running✔️")
 
 
 class Book:
+    total_books = 0
+
     def __init__(self, title , author):
         self.title = title
         self.author = author
+        self.availbale = random.randint(1,2)
+        Book.total_books += 1
+
+    def situation(self):
+            if self.availbale == 1:
+                return "availbale"
+            else:
+                return "borrowed"
+    def __repr__(self):
+            return f"the book is: {self.situation()}"
+class Ebook(Book):
+    def __init__(self, title , author , file_size):
+         super().__init__(title , author)
+         self.file_size = file_size
+
+        
     # def as_dict(self):
     #     return{
     #         "title": self.title,
@@ -46,33 +64,40 @@ class Book:
     #         "availbale": self.availbale,
     #     }
 
-class book_available:
-    def __init__(self):
-        self.availbale = random.randint(1,2)
+# class book_available:
+#     def __init__(self):
+#         self.availbale = random.randint(1,2)
 
-    def situation(self):
-        if self.availbale == 1:
-            return "availbale"
-        else:
-            return "borrowed"
+#     def situation(self):
+#         if self.availbale == 1:
+#             return "availbale"
+#         else:
+#             return "borrowed"
+#     def __repr__(self):
+#         return f"the book is: {self.situation()}"
+    
 
+book1= Ebook("Human" , "Einstein" , "25MB")
+book2=Ebook("1939" , "idk" , "30MB")
+book1_availbale = Book("" , "")
+book2_available = Book("" , "")
 
-book1= Book("Human" , "Einstein")
-book2=Book("1939" , "idk")
-book1_availbale = book_available()
-book2_available = book_available()
+log.info("total books created: %d", Book.total_books)
 @app.route("/books")
 def books():
     log.info("returned the list of the books📕")
     all_books= [book1 , book2]
+    log.info("returned the file size of the books📁")
     return render_template("testlearn.html" , books=all_books)
-    
+
 @app.route("/borrow/<int:book_id>")
 def borrows(book_id):
-    book = book1_availbale if book_id == 1 else book2_available
-    log.info("returned the availbalty of the book📙")
-    return render_template("testlearn.html", book=book)
- 
+    try:
+        book = book1_availbale if book_id == 1 else book2_available
+        log.info("returned the availbalty of the book📙")
+        return render_template("testlearn.html", book=book)
+    except Exception:
+        log.exception("ERROR while rendering borrows page👎")
 
 @app.route("/")
 def login():

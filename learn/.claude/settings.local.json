@@ -18,7 +18,11 @@
       "PowerShell(\"--- flask-project ---\")",
       "Bash(node *)",
       "Bash(python -c ' *)",
-      "Bash(PYTHONIOENCODING=utf-8 python -c ' *)"
+      "Bash(PYTHONIOENCODING=utf-8 python -c ' *)",
+      "Bash(rm -f \"C:\\\\Users\\\\jonat\\\\OneDrive\\\\שולחן העבודה\\\\workspace\\\\flask\\\\learn\\\\run_check2.log\")",
+      "Bash(netstat -ano)",
+      "Bash(taskkill //F //PID 58124)",
+      "Bash(taskkill //F //PID 11760)"
     ]
   }
 }
