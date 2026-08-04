@@ -6,6 +6,7 @@ import logging
 import colorlog
 from logging.handlers import RotatingFileHandler
 from flask import jsonify
+import random
 
 app = Flask(__name__)
 
@@ -38,13 +39,6 @@ class Book:
     def __init__(self, title , author):
         self.title = title
         self.author = author
-        self.availbale = True
-
-    def borrow(self):
-        if not self.availbale:
-            return f"{self.title} is already borrowed"
-
-        self.availbale = False
     # def as_dict(self):
     #     return{
     #         "title": self.title,
@@ -52,9 +46,21 @@ class Book:
     #         "availbale": self.availbale,
     #     }
 
+class book_available:
+    def __init__(self):
+        self.availbale = random.randint(1,2)
+
+    def situation(self):
+        if self.availbale == 1:
+            return "availbale"
+        else:
+            return "borrowed"
+
+
 book1= Book("Human" , "Einstein")
 book2=Book("1939" , "idk")
-
+book1_availbale = book_available()
+book2_available = book_available()
 @app.route("/books")
 def books():
     log.info("returned the list of the books📕")
@@ -62,9 +68,9 @@ def books():
     return render_template("testlearn.html" , books=all_books)
     
 @app.route("/borrow/<int:book_id>")
-def borrow(book_id):
-    book = book1 if book_id == 1 else book2
-    return {"message": book.borrow(), "book": book.as_dict()}
+def borrows(book_id):
+    book = book1_availbale if book_id == 1 else book2_available
+    return render_template("testlearn.html", book=book)
  
 
 @app.route("/")

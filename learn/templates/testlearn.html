@@ -12,6 +12,24 @@
     {{chip(sports)}}
     
     {{chip("python")}}
+
+    <h1>Library</h1>
+    {% for book in books %}
+        <article>
+            <h2>{{ book.title}}</h2>
+            <h2>written by: {{ book.author }}</h2>
+        {% if book.availbale %}
+            <h2>availbale</h2>
+        {% else %}
+            <h2>borrowed</h2>
+        {% endif %}
+        </article>
+    {% endfor %}
+
+    <h1>Borrow book</h1>
+    {% if book %}
+        <p>{{ book.situation() }}</p>
+    {% endif %}
     
 </body>
 </html>
