@@ -70,6 +70,7 @@ def books():
 @app.route("/borrow/<int:book_id>")
 def borrows(book_id):
     book = book1_availbale if book_id == 1 else book2_available
+    log.info("returned the availbalty of the book📙")
     return render_template("testlearn.html", book=book)
  
 
