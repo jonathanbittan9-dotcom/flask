@@ -197,7 +197,7 @@ def timer(func):
         #   **kwargs (here) -> UNPACKS the kwargs dict back into individual
         #                      keyword arguments when calling func
         elapsed = time.perf_counter() - start
-        print(f"{func.__name__} took {elapsed:.4f}s")
+        print(f"{func.__na0me__} took {elapsed:.4f}s")
         # New words in this line:
         #   f"...{expr}..."  -> f-string: a string literal prefixed with f;
         #                       anything inside {curly braces} is evaluated
