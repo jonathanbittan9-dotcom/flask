@@ -39,6 +39,12 @@ def payment_process():
     # class paymentmastercardfail(paymentmastercard):
         # pass
 
+class login_system:
+    _instance = None
+    def __new__(cls):
+        if cls._instance is None:
+            
+        
     pay = paymentmastercard()
 if __name__ == "__main__":
     log.info("the system ran ✔️")
