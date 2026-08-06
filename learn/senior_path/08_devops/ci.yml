@@ -1,0 +1,69 @@
+# 08_devops/ci.yml
+#
+# Section 8: DevOps / Deployment — Continuous Integration
+#
+# In a real repo this file would live at .github/workflows/ci.yml so
+# GitHub Actions picks it up automatically. Kept here (renamed, no leading
+# dot-folder) purely so it sits alongside the other teaching files.
+#
+# What this buys you: every push and PR gets tests + linting run
+# automatically, so a broken change is caught in CI instead of in
+# production — this is the automated version of "did anyone check this
+# actually works" that the fix_*.py / emergency_fix.py scripts in
+# RecentTabList suggest wasn't happening.
+
+name: CI   # NEW: just a label shown in GitHub's UI for this workflow
+
+on:   # NEW: `on:` — what triggers this workflow to run
+  push:
+    branches: [main]         # NEW: [main] — YAML's inline list syntax,
+                               # same meaning as the "- main" multi-line form
+  pull_request:
+    branches: [main]
+
+jobs:   # NEW: one workflow can have multiple jobs; each runs in its own
+         # fresh virtual machine, in parallel by default
+  test:
+    runs-on: ubuntu-latest   # NEW: which OS/VM image to run this job on
+
+    steps:   # NEW: the ordered list of actions this job performs
+      - name: Check out code
+        uses: actions/checkout@v4   # NEW: `uses:` runs a pre-built, reusable
+                                      # "action" someone else published — this
+                                      # one clones your repo onto the VM (without
+                                      # it, the VM would be empty, no code to test)
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:                        # NEW: `with:` passes configuration
+                                      # INTO the action being used
+          python-version: "3.11"
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          # NEW: ${{ }} — GitHub Actions' expression syntax, evaluated at
+          # run time. `runner.os` and `hashFiles(...)` are built-in values/
+          # functions — this builds a cache key that changes whenever
+          # requirements.txt's contents change, so the cache auto-invalidates.
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest ruff
+        # NEW: `run:` executes literal shell commands (as opposed to `uses:`,
+        # which runs someone else's packaged action). The `|` above starts a
+        # YAML "block scalar" — everything indented under it is one multi-line
+        # string, run here as multiple shell commands in sequence.
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Run tests
+        run: pytest -v
+
+      # A failing step here BLOCKS the PR from being merged (if branch
+      # protection is turned on) — that's what makes CI actually enforce
+      # quality instead of just being advisory.

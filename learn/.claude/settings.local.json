@@ -22,7 +22,17 @@
       "Bash(rm -f \"C:\\\\Users\\\\jonat\\\\OneDrive\\\\שולחן העבודה\\\\workspace\\\\flask\\\\learn\\\\run_check2.log\")",
       "Bash(netstat -ano)",
       "Bash(taskkill //F //PID 58124)",
-      "Bash(taskkill //F //PID 11760)"
+      "Bash(taskkill //F //PID 11760)",
+      "PowerShell(Get-CimInstance *)",
+      "Bash(python -c \"import flask; print\\('flask', flask.__version__\\)\")",
+      "Bash(python -c \"import flask_sqlalchemy\")",
+      "Bash(python -c \"import flask_wtf\")",
+      "Bash(python -c \"import flask_login\")",
+      "Bash(python -c \"import wtforms\")",
+      "Bash(python *)",
+      "PowerShell(python senior_path\\\\15_flask_architecture_and_requests.py 2>&1 | Select-Object -First 60)",
+      "PowerShell(python 15_flask_architecture_and_requests.py 2>&1 | Select-Object -First 60)",
+      "PowerShell(python 16_flask_data_auth_apis.py 2>&1 | Select-Object -First 60)"
     ]
   }
 }

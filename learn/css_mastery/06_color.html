@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>06 — Color</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+  .note { color: #596763; }
+  .card { padding: 1rem; border: 1px solid #D2D9D6; border-radius: 6px; margin: 1rem 0; }
+
+  /* ===========================================================
+     LESSON 6: Color — hex, rgb, hsl, contrast, currentColor
+     =========================================================== */
+
+  /* --- The notations, all producing colors used below -----------
+       color: #0E7C70;                  hex
+       color: #0E7C70CC;                hex + alpha (CC ~ 80% opaque)
+       color: rgb(14 124 112);          red green blue, 0-255
+       color: rgb(14 124 112 / 0.8);    with alpha
+       color: hsl(174 79% 27%);         hue saturation lightness
+       color: hsl(174 79% 27% / 0.8);
+     ----------------------------------------------------------- */
+
+  /* --- Why hsl is worth learning: hex is opaque to a human reader
+     — you can't look at #0E7C70 and know what changing it does.
+     hsl names the three things you actually want to adjust:
+       HUE         0-360 on the color wheel (0 red, 120 green, 240 blue)
+       SATURATION  0-100%, grey to vivid
+       LIGHTNESS   0-100%, black to white, 50% is the pure hue
+     Hold hue and saturation, vary only lightness, and you get tints
+     that genuinely belong to the same palette. --------------------- */
+  :root {
+    --hue: 174;   /* teal. Change this ONE number and every swatch below shifts together. */
+  }
+  .swatch-dark  { background: hsl(var(--hue) 79% 18%); }
+  .swatch-mid   { background: hsl(var(--hue) 79% 27%); }
+  .swatch-light { background: hsl(var(--hue) 45% 88%); }
+  .swatch { display: inline-block; width: 5rem; height: 3rem; border-radius: 4px; margin-right: .5rem; }
+
+  /* --- Contrast is a requirement, not a preference. WCAG minimums:
+       body text                       4.5:1 against its background
+       large text (18pt+/14pt bold)    3:1
+       UI borders, icons, focus rings  3:1
+     Browser devtools check this for you: inspect an element, click
+     the color swatch in the Styles panel, and the ratio shows with
+     a pass/fail mark. -------------------------------------------- */
+  .fails-contrast { color: #999999; background: white; padding: 8px; }  /* ~2.85:1 — FAILS */
+  .passes-contrast { color: #767676; background: white; padding: 8px; } /* ~4.54:1 — passes, barely */
+
+  /* --- currentColor: follows whatever `color` resolves to on that
+     element, including on :hover — bind border to text color once
+     instead of repeating the hex value in two places. -------------- */
+  .current-color-demo {
+    color: hsl(var(--hue) 79% 27%);
+    border: 2px solid currentColor;   /* always matches .color above, automatically */
+    padding: 8px 16px;
+    display: inline-block;
+  }
+  .current-color-demo:hover { color: #A96A22; }  /* border follows automatically, no second rule needed */
+
+  /* --- Color alone is never enough. A red/green status shown by
+     color only is invisible to the ~1-in-12 men with some form of
+     color blindness. Always pair color with a second cue: icon,
+     label, shape, or border weight. ------------------------------ */
+  .status { border-left: 3px solid; padding-left: .75rem; margin: 4px 0; }
+  .status--ok    { color: hsl(150 60% 28%); border-color: hsl(150 60% 38%); }
+  .status--warn  { color: hsl(38 85% 30%);  border-color: hsl(38 85% 45%); }
+  .status--error { color: hsl(0 65% 40%);   border-color: hsl(0 65% 50%); }
+</style>
+</head>
+<body>
+
+<h1>Color</h1>
+
+<div class="card">
+  <p class="note">Same hue (174), three lightness values — a coherent palette from one number:</p>
+  <span class="swatch swatch-dark"></span>
+  <span class="swatch swatch-mid"></span>
+  <span class="swatch swatch-light"></span>
+  <p class="note">Edit <code>--hue: 174</code> at the top of the &lt;style&gt; block to any value 0-360 and reload — the relationships (dark/mid/light of the SAME color) survive unchanged.</p>
+</div>
+
+<div class="card">
+  <p class="note">Contrast — both are grey text on white. Only one passes the 4.5:1 body-text minimum:</p>
+  <p class="fails-contrast">#999999 on white — fails (~2.85:1)</p>
+  <p class="passes-contrast">#767676 on white — passes (~4.54:1)</p>
+</div>
+
+<div class="card">
+  <p class="note">currentColor — hover the box below; the border recolors WITH the text, from one rule:</p>
+  <span class="current-color-demo">hover me</span>
+</div>
+
+<div class="card">
+  <p class="note">A status system that survives colorblindness — color plus an icon/label, never color alone:</p>
+  <p class="status status--ok">✓ Success — saved</p>
+  <p class="status status--warn">! Warning — check the email field</p>
+  <p class="status status--error">✕ Error — could not save</p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>11 — Positioning</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+  .note { color: #596763; }
+  .card { padding: 1rem; border: 1px solid #D2D9D6; border-radius: 6px; margin: 1rem 0; overflow: hidden; }
+
+  /* ===========================================================
+     LESSON 11: Positioning — static, relative, absolute, fixed,
+     sticky, and the "containing block" that decides where an
+     offset (top/right/bottom/left) is actually measured FROM.
+     =========================================================== */
+
+  /* --- static: the default. top/right/bottom/left do NOTHING.
+     Normal flow, exactly as in lesson 8. -------------------------- */
+  .static-demo { position: static; background: #F2F5F3; padding: 8px; }
+
+  /* --- relative: shifts the element from where it WOULD have
+     been in normal flow — the space it originally occupied stays
+     reserved (nothing else moves to fill it). Its main real job:
+     becoming the ANCHOR for an absolutely-positioned child. -------- */
+  .relative-demo {
+    position: relative;
+    top: 10px; left: 10px;   /* nudged 10px down and right from its normal spot */
+    background: #FBEFE1;
+    padding: 8px;
+    display: inline-block;
+  }
+
+  /* --- absolute: removed from normal flow entirely (siblings act
+     as if it isn't there) and positioned relative to its nearest
+     ANCESTOR that has position set to anything other than static
+     — its "containing block". No such ancestor -> falls back to
+     the whole page. This is why .anchor below needs
+     position:relative on it: without that, .absolute-demo would
+     jump to the page corner instead of this card's corner. -------- */
+  .anchor { position: relative; height: 100px; background: #EEF1F8; }
+  .absolute-demo {
+    position: absolute;
+    top: 8px; right: 8px;
+    background: #0E7C70; color: white; padding: 4px 10px; border-radius: 4px; font-size: .85rem;
+  }
+
+  /* --- fixed: positioned relative to the VIEWPORT, stays put even
+     while the page scrolls. Used for a persistent header/chat
+     button. Not demonstrated as truly fixed here — it would follow
+     you around this whole page — this is a visual stand-in only. -- */
+  .fixed-demo { background: #2F4E93; color: white; padding: 6px 10px; border-radius: 4px; display: inline-block; font-size: .85rem; }
+
+  /* --- sticky: hybrid — behaves like `relative` until the page
+     scrolls to a point where it WOULD scroll out of view under the
+     given offset, then it "sticks" there like `fixed`, but only
+     within its own parent's bounds. Scroll the box below. --------- */
+  .sticky-container { height: 140px; overflow-y: auto; border: 1px dashed #ccc; }
+  .sticky-header { position: sticky; top: 0; background: #A96A22; color: white; padding: 4px 8px; }
+  .sticky-container p { padding: 4px 8px; margin: 0; }
+
+  /* --- z-index and stacking contexts: when two positioned
+     elements overlap, z-index decides which draws ON TOP — higher
+     wins, but ONLY among elements sharing the same "stacking
+     context". A z-index:9999 can still lose to a z-index:1 if
+     it's trapped inside an ancestor that itself has a LOWER
+     stacking context than the other element's ancestor — z-index
+     values only compete against SIBLINGS within the same context,
+     never reaching outside it. This is the classic "why won't my
+     z-index:9999 dropdown appear on top" bug. ---------------------- */
+  .stack-wrap { position: relative; height: 60px; }
+  .stack-a { position: absolute; top: 0; left: 0; width: 100px; height: 50px; background: #0E7C70; color:white; z-index: 1; display:flex; align-items:center; justify-content:center; }
+  .stack-b { position: absolute; top: 15px; left: 60px; width: 100px; height: 50px; background: #A96A22; color:white; z-index: 2; display:flex; align-items:center; justify-content:center; }
+</style>
+</head>
+<body>
+
+<h1>Positioning</h1>
+
+<div class="card">
+  <p class="note">static (default) — normal flow, top/left have no effect if added:</p>
+  <div class="static-demo">static box</div>
+</div>
+
+<div class="card">
+  <p class="note">relative — nudged 10px down/right from its normal spot; the original space stays reserved:</p>
+  <div class="relative-demo">relative box</div>
+</div>
+
+<div class="card">
+  <p class="note">absolute, anchored to a position:relative parent — the badge sits in the parent's corner, not the page's:</p>
+  <div class="anchor">
+    parent (position: relative)
+    <span class="absolute-demo">badge</span>
+  </div>
+</div>
+
+<div class="card">
+  <p class="note">sticky — scroll this small box; the header sticks to its top instead of scrolling away:</p>
+  <div class="sticky-container">
+    <div class="sticky-header">Sticky header</div>
+    <p>line one</p><p>line two</p><p>line three</p><p>line four</p><p>line five</p><p>line six</p>
+  </div>
+</div>
+
+<div class="card">
+  <p class="note">z-index — the orange box (z-index:2) draws over the teal one (z-index:1), even though it comes second in normal reading order but overlaps it:</p>
+  <div class="stack-wrap">
+    <div class="stack-a">z: 1</div>
+    <div class="stack-b">z: 2</div>
+  </div>
+</div>
+
+</body>
+</html>

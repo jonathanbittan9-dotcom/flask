@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>18 — Organizing a real stylesheet</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 42rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; }
+  .note { color: #596763; }
+  .card { padding: 1rem; border: 1px solid #D2D9D6; border-radius: 6px; margin: 1rem 0; }
+  pre { background: #F2F5F3; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: .85rem; }
+  code { background: #F2F5F3; padding: 1px 4px; border-radius: 3px; }
+
+  /* ===========================================================
+     LESSON 18: Organizing a stylesheet — the discipline that
+     keeps CSS maintainable once a project outgrows one page's
+     worth of rules. This lesson is mostly reference; the "lab" is
+     applying it to your actual hello.py project (section 6).
+     =========================================================== */
+
+  /* --- BEM naming: Block__Element--Modifier. Answers "what does
+     this class belong to?" from the name alone, without hunting
+     through the file for context. -------------------------------- */
+  .bem-example .card__header { font-weight: 600; }
+  .bem-example .card__body { color: #596763; }
+  .bem-example .card--featured { border-color: #A96A22; background: #FBEFE1; }
+
+  /* --- Layered structure: TOKENS -> BASE -> COMPONENTS ->
+     UTILITIES, matching @layer from lesson 17's cascade-control
+     feature:
+
+       @layer tokens, base, components, utilities;
+
+       @layer tokens {      -- variables only: colors, spacing, radii
+         :root { --accent: #0E7C70; --space-md: 1rem; }
+       }
+       @layer base {         -- element defaults, no classes: body, a, h1-h6
+         body { font-family: system-ui, sans-serif; }
+       }
+       @layer components {   -- named UI pieces: .card, .btn, .navbar
+         .card { padding: var(--space-md); border-radius: 6px; }
+       }
+       @layer utilities {    -- small single-purpose overrides, always win
+         .u-hidden { display: none; }
+       }
+
+     Reading order top to bottom mirrors DEPENDENCY order — base can't
+     reference a component class, a component can reference a token,
+     a utility can override a component. */
+
+  .bem-example { display: flex; gap: 8px; }
+  .card.card--featured, .card { flex: 1; }
+</style>
+</head>
+<body>
+
+<h1>Organizing a real stylesheet</h1>
+
+<div class="card">
+  <h2>BEM naming</h2>
+  <p class="note">Block, Element, Modifier — <code>.card</code> (block), <code>.card__header</code> (element, belongs to card), <code>.card--featured</code> (modifier, a variant of card):</p>
+  <div class="bem-example">
+    <div class="card">
+      <p class="card__header">Plain card</p>
+      <p class="card__body">Regular styling</p>
+    </div>
+    <div class="card card--featured">
+      <p class="card__header">Featured card</p>
+      <p class="card__body">Modifier changes it</p>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>File structure and @import cost</h2>
+  <p class="note">A reasonable structure once one <code>style.css</code> stops being enough:</p>
+<pre>static/css/
+  tokens.css       /* variables only */
+  base.css         /* element defaults, no classes */
+  components/
+    card.css
+    navbar.css
+    button.css
+  utilities.css    /* small single-purpose helpers */
+  style.css        /* imports the rest, in dependency order */</pre>
+  <p class="note"><code>@import</code> inside CSS is the simplest way to combine those files, but each <code>@import</code> is its own blocking network request in the browser unless bundled — fine for a handful of files in a learning project, worth switching to a build step (or Jinja's own <code>{% include %}</code>-adjacent tooling) once there are many. For <code>hello.py</code>-scale projects, plain <code>@import</code> or even one hand-organized file (with the section comments below) is genuinely fine.</p>
+</div>
+
+<div class="card">
+  <h2>A reset or normalize layer</h2>
+  <p class="note">Browsers ship inconsistent default margins/font-sizes on <code>h1</code>-<code>h6</code>, lists, and form elements. A small reset removes the inconsistency before your own rules apply:</p>
+<pre>*, *::before, *::after { box-sizing: border-box; }         /* lesson 4 */
+body, h1, h2, h3, p, ul, ol { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+img, video { max-width: 100%; display: block; }
+button, input, textarea { font: inherit; }                 /* form elements don't inherit font by default */</pre>
+</div>
+
+<div class="card">
+  <h2>Documenting a component</h2>
+  <p class="note">A short comment block above a non-obvious component pays for itself the first time someone (including future you) has to change it:</p>
+<pre>/* .card — a bordered content block used on the home page and any
+   listing page. Modifiers: .card--featured (orange accent, used for
+   the single highlighted item at the top of a list).
+   Depends on: --accent, --space-md (tokens.css). */
+.card { ... }</pre>
+</div>
+
+<div class="card">
+  <h2>Styling your Flask project end to end</h2>
+  <p class="note">The actual lab for this lesson — apply everything above to <code>hello.py</code>:</p>
+  <ol>
+    <li>Create <code>static/css/style.css</code> (lesson 1 covers linking it with <code>url_for</code>).</li>
+    <li>Add the box-sizing + minimal reset from above at the top.</li>
+    <li>Define your tokens: 2-3 colors, a spacing scale, one radius value — as <code>:root</code> custom properties (lesson 16).</li>
+    <li>Style <code>templates/home.html</code>'s actual elements using a class per component (a card for the greeting, a list style for hobbies) — class names, not element selectors, per lesson 2.</li>
+    <li>Run <code>python hello.py</code>, visit the page, and hard-reload (<kbd>Ctrl+Shift+R</kbd>) until it looks intentional — this is genuinely the whole discipline: tokens once, components built from them, nothing more specific than it needs to be.</li>
+  </ol>
+</div>
+
+<p class="note">That's the full 18-lesson track. <code>js_mastery/20_fetch_flask_api.js</code> is the natural next step once this styling pass is done — wiring JS into the same page.</p>
+
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>js_mastery demo page</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; }
+  .card { padding: 20px; border: 2px solid #0E7C70; border-radius: 6px; margin-bottom: 1.5rem; }
+  .note { color: #596763; }
+  .cta { padding: .5rem 1rem; }
+  #hobby-list li.done { text-decoration: line-through; color: #999; }
+  #status { font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!--
+  This is the shared page for js_mastery/12_dom_selecting.js through
+  15_forms.js. Those files touch the DOM (the page itself), which only
+  exists in a browser, not in Node.
+
+  HOW TO USE THIS FILE:
+    1. Open this file in a browser (double-click it, or `start demo.html`
+       from this folder in PowerShell).
+    2. Press F12, go to the Console tab.
+    3. Open the lesson file you're on (e.g. 12_dom_selecting.js) in a text
+       editor, copy its code, and paste it into the console. Press Enter.
+    OR
+    4. Uncomment ONE <script src="..."> line at the bottom of this file,
+       save, and reload the page — its console.log output appears in
+       DevTools automatically on load.
+
+  Work through lessons 12-15 one at a time against the elements below.
+-->
+
+<div class="card">
+  <h2 id="card-title">Welcome</h2>
+  <p class="note" id="card-note">This paragraph has the class "note".</p>
+  <button class="cta" id="cta-button">Click me</button>
+</div>
+
+<h3>Hobbies</h3>
+<ul id="hobby-list">
+  <li data-id="1">gaming</li>
+  <li data-id="2">coding</li>
+  <li data-id="3">reading</li>
+</ul>
+
+<h3>A form</h3>
+<form id="signup-form">
+  <label for="email-input">Email:</label>
+  <input id="email-input" name="email" type="email" required>
+  <button type="submit">Sign up</button>
+</form>
+<p id="status"></p>
+
+<!-- Uncomment exactly one at a time and reload the page: -->
+<!-- <script src="12_dom_selecting.js"></script> -->
+<!-- <script src="13_dom_changing.js"></script> -->
+<!-- <script src="14_events.js"></script> -->
+<!-- <script src="15_forms.js"></script> -->
+
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>12 — Backgrounds and borders</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+  .note { color: #596763; }
+  .card { padding: 1rem; border: 1px solid #D2D9D6; border-radius: 6px; margin: 1rem 0; }
+  .swatch { height: 80px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-size: .85rem; }
+
+  /* ===========================================================
+     LESSON 12: Backgrounds and borders — surface detail with no
+     extra markup needed.
+     =========================================================== */
+
+  /* --- Linear and radial gradients — a background IMAGE made of
+     color stops, no image file required. --------------------------- */
+  .linear-gradient { background: linear-gradient(135deg, #0E7C70, #2F4E93); }
+  .radial-gradient { background: radial-gradient(circle at 30% 30%, #FBEFE1, #A96A22); }
+
+  /* --- border-radius, including the slash syntax: "8px / 20px"
+     sets horizontal / vertical radius separately, for an elliptical
+     rather than circular corner. --------------------------------- */
+  .radius-simple { border-radius: 12px; background: #E1F0ED; }
+  .radius-pill   { border-radius: 999px; background: #E1F0ED; }         /* fully round ends */
+  .radius-blob   { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; background: #EEF1F8; }  /* organic shape */
+
+  /* --- box-shadow: layered elevation. Multiple shadows, lightest-
+     and-widest LAST, build a soft, realistic depth instead of one
+     harsh single shadow. Syntax: x-offset y-offset blur spread color. */
+  .shadow-flat { box-shadow: 0 1px 2px rgba(0,0,0,0.15); background: white; }
+  .shadow-raised {
+    box-shadow:
+      0 1px 2px rgba(0,0,0,0.10),
+      0 4px 8px rgba(0,0,0,0.10),
+      0 12px 24px rgba(0,0,0,0.08);
+    background: white;
+  }
+
+  /* --- outline vs border: outline does NOT take space in the box
+     model (it draws OUTSIDE the border without affecting layout or
+     width), and it can be non-rectangular-cornered independent of
+     border-radius. This is exactly why :focus-visible rings
+     (lesson 2) use outline instead of border — adding a focus
+     ring never shifts surrounding layout. -------------------------- */
+  .outline-demo { border: 2px solid #0E7C70; outline: 3px solid #A96A22; outline-offset: 4px; background: white; padding: 8px; }
+
+  /* --- Restraint: a shadow doing nothing. Compare these two —
+     the second's shadow is too subtle to read as "elevated" at
+     all, it just looks like a slightly blurry edge. If a shadow
+     isn't clearly communicating "this sits above the page," it's
+     not earning its cost (shadows aren't free to render). --------- */
+  .shadow-pointless { box-shadow: 0 0 1px rgba(0,0,0,0.05); background: white; padding: 8px; }
+</style>
+</head>
+<body>
+
+<h1>Backgrounds and borders</h1>
+
+<div class="card">
+  <p class="note">Gradients — no image file, just color stops:</p>
+  <div class="swatch linear-gradient">linear-gradient(135deg, teal, blue)</div>
+  <div class="swatch radial-gradient" style="margin-top:8px;">radial-gradient(circle at 30% 30%, ...)</div>
+</div>
+
+<div class="card">
+  <p class="note">border-radius — simple, pill, and the slash syntax for an organic blob:</p>
+  <div class="swatch radius-simple" style="color:#333;">12px</div>
+  <div class="swatch radius-pill" style="color:#333; margin-top:8px;">999px (pill)</div>
+  <div class="swatch radius-blob" style="color:#333; margin-top:8px;">60% 40% 30% 70% / 60% 30% 70% 40%</div>
+</div>
+
+<div class="card" style="background:#f7f8f7;">
+  <p class="note">box-shadow — a flat 1-layer shadow vs a realistic layered one:</p>
+  <div class="swatch shadow-flat" style="color:#333; margin-bottom:16px;">single shadow</div>
+  <div class="swatch shadow-raised" style="color:#333;">layered shadow — reads as more "lifted"</div>
+</div>
+
+<div class="card">
+  <p class="note">outline vs border — the outline sits outside the border with a gap (outline-offset), affecting NOTHING in the box model:</p>
+  <div class="outline-demo" style="display:inline-block;">border + outline, no layout shift</div>
+</div>
+
+<div class="card" style="background:#f7f8f7;">
+  <p class="note">Restraint — this shadow is too subtle to read as elevation at all. Compare it with the "layered shadow" box above:</p>
+  <div class="swatch shadow-pointless" style="color:#333;">barely-there shadow</div>
+</div>
+
+</body>
+</html>

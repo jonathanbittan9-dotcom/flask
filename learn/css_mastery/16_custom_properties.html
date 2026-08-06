@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>16 — Custom properties</title>
+<style>
+  .note { color: #596763; }
+  .card { padding: 1rem; border: 1px solid #D2D9D6; border-radius: 6px; margin: 1rem 0; }
+
+  /* ===========================================================
+     LESSON 16: Custom properties — real variables in CSS. The
+     basis of theming and design systems.
+     =========================================================== */
+
+  /* --- --name and var(--name, fallback). Declared like any other
+     declaration, just with a -- prefix; read with var(). The second
+     argument to var() is a FALLBACK used only if the variable is
+     undefined — not the same as a default in a function call, it's
+     evaluated live, every time. ------------------------------------ */
+  :root {
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 2rem;
+    --accent: #0E7C70;
+    --accent-wash: #E1F0ED;
+    --radius: 6px;
+  }
+  body { font-family: system-ui, sans-serif; max-width: 40rem; margin: var(--space-lg) auto; padding: 0 1rem; line-height: 1.5; }
+
+  .token-box {
+    background: var(--accent-wash);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    padding: var(--space-md);
+  }
+  .missing-var-demo {
+    color: var(--this-was-never-defined, #A96A22);   /* falls back since the var doesn't exist */
+  }
+
+  /* --- Cascading and inheritance — the KEY difference from a Sass
+     variable. A Sass variable is resolved once, at COMPILE time,
+     and baked into the output CSS as a plain value — done, fixed
+     forever. A CSS custom property is a real, LIVE value in the
+     cascade: it can be overridden per-selector, inherited down the
+     tree, and even read/written from JavaScript at runtime (section
+     below). Scoping one to a smaller selector than :root affects
+     only that element and its descendants: ------------------------- */
+  .scoped-override {
+    --accent: #A96A22;               /* overrides --accent ONLY inside this element */
+    --accent-wash: #FBEFE1;
+    border: 1px solid var(--accent);
+    background: var(--accent-wash);
+    border-radius: var(--radius);
+    padding: var(--space-md);
+  }
+
+  /* --- Building a token system: name things by ROLE (--accent),
+     not by literal value (--teal) — the role survives a rebrand,
+     the literal name lies the moment the color changes. ------------ */
+
+  /* --- Light/dark theming with prefers-color-scheme: redefine the
+     SAME variable names for dark mode; every rule using var(...)
+     picks up the new values automatically, with zero duplicated
+     selectors. -------------------------------------------------------- */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --accent: #4FD1C5;
+      --accent-wash: #123832;
+      --bg: #1a1a1a;
+      --fg: #e8e8e8;
+    }
+    body { background: var(--bg, white); color: var(--fg, black); }
+  }
+</style>
+</head>
+<body>
+
+<h1>Custom properties</h1>
+
+<div class="token-box">
+  This box is built entirely from --accent, --accent-wash, --radius and
+  --space-md, defined once on :root.
+</div>
+
+<div class="card">
+  <p class="note">A fallback value — this text uses a variable that was never defined, so var()'s second argument kicks in:</p>
+  <p class="missing-var-demo">Styled by var(--this-was-never-defined, #A96A22)</p>
+</div>
+
+<div class="card scoped-override">
+  This box redefines --accent and --accent-wash LOCALLY — everything using
+  var(--accent) inside it picks up orange instead of teal, without touching
+  the global values used everywhere else on the page.
+</div>
+
+<div class="card">
+  <p class="note">Try your OS/browser's dark mode toggle and reload this page — :root's --accent/--accent-wash swap to different values via prefers-color-scheme, and every var(...) reference updates automatically, no selectors duplicated.</p>
+</div>
+
+<h3>Reading and setting them from JavaScript</h3>
+<pre class="note" style="background:#F2F5F3; padding:8px; border-radius:4px; overflow-x:auto;">// read a custom property's current value
+getComputedStyle(document.documentElement).getPropertyValue('--accent');
+
+// set one at runtime — every var(--accent) on the page updates live
+document.documentElement.style.setProperty('--accent', '#A96A22');</pre>
+<p class="note">This is how a JS-driven theme switcher usually works — one JS line flips a handful of custom properties instead of toggling classes on every styled element individually.</p>
+
+</body>
+</html>

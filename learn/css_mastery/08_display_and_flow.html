@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>08 — Display and normal flow</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+  .note { color: #596763; }
+  .card { padding: 1rem; border: 1px solid #D2D9D6; border-radius: 6px; margin: 1rem 0; }
+
+  /* ===========================================================
+     LESSON 8: Display and normal flow — the layout you get for
+     free, before flexbox/grid intervene (lessons 9-10).
+     =========================================================== */
+
+  /* --- block: takes the FULL available width, always starts on
+     its own new line. div, p, h1-h6, ul, li are block by default. */
+  .block-demo { display: block; background: #EEF1F8; padding: 4px 8px; margin-bottom: 4px; }
+
+  /* --- inline: takes ONLY as much width as its content needs,
+     flows in a line alongside text and other inline elements.
+     span, a, strong, em are inline by default. WIDTH, HEIGHT, and
+     VERTICAL margin/padding do NOTHING on an inline element — this
+     is the single most common "why won't my CSS apply" for a <span>. */
+  .inline-demo {
+    display: inline;
+    background: #FBEFE1;
+    width: 200px;      /* has NO effect — inline elements size to their content */
+    height: 100px;      /* also no effect */
+    margin: 20px;        /* horizontal margin works, vertical is IGNORED */
+    padding: 20px;        /* horizontal padding pushes neighbors, vertical
+                              paints visually but doesn't affect layout height */
+  }
+
+  /* --- inline-block: the fix. Flows inline with surrounding
+     content LIKE inline, but WIDTH, HEIGHT and vertical spacing
+     behave like block. This is what the box below actually needs. */
+  .inline-block-demo {
+    display: inline-block;
+    background: #E1F0ED;
+    width: 140px;
+    height: 60px;
+    margin: 8px;
+    vertical-align: top;
+  }
+
+  /* --- display: none vs visibility: hidden vs the `hidden`
+     attribute: none REMOVES the element from layout entirely — as
+     if it were never in the HTML, other elements shift to fill the
+     gap. visibility:hidden leaves an INVISIBLE gap the same size as
+     the element — layout is unaffected, it just can't be seen. The
+     hidden ATTRIBUTE (no CSS needed: <div hidden>) is equivalent to
+     display:none, and it's the more semantic choice when the
+     element is meant to be gone, not just styled away. -------------- */
+  .none-demo    { display: none; }
+  .hidden-demo  { visibility: hidden; }
+
+  /* --- Replaced elements: img, video, input behave differently —
+     their "content" is drawn by the browser from OUTSIDE the CSS
+     box model's normal rules (e.g. width/height directly resize the
+     drawn image rather than just the box around abstract content).
+     They don't participate in normal flow quite like text does. --- */
+</style>
+</head>
+<body>
+
+<h1>Display and normal flow</h1>
+
+<div class="card">
+  <p class="note">Two block elements — each takes the full width and starts a new line, even though there's plenty of room beside them:</p>
+  <div class="block-demo">block box one</div>
+  <div class="block-demo">block box two</div>
+</div>
+
+<div class="card">
+  <p class="note">inline elements flow WITH text — the width/height/vertical-margin set above are silently ignored:</p>
+  <p>Text before <span class="inline-demo">an inline span with width/height set (ignored)</span> text after, all on one flow.</p>
+</div>
+
+<div class="card">
+  <p class="note">inline-block — flows inline, but width/height/vertical spacing actually apply:</p>
+  <span class="inline-block-demo">box A</span><span class="inline-block-demo">box B</span><span class="inline-block-demo">box C</span>
+</div>
+
+<div class="card">
+  <p class="note">display:none vs visibility:hidden — three items in a row, the middle one hidden a different way each time:</p>
+  <p>Row A (display:none on B — B is gone, A and C sit adjacent, no gap):
+    <span class="inline-block-demo">A</span><span class="inline-block-demo none-demo">B removed</span><span class="inline-block-demo">C</span>
+  </p>
+  <p>Row B (visibility:hidden on B — B leaves an empty gap the same size):
+    <span class="inline-block-demo">A</span><span class="inline-block-demo hidden-demo">B invisible</span><span class="inline-block-demo">C</span>
+  </p>
+</div>
+
+</body>
+</html>

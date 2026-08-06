@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>14 — Animations</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+  .note { color: #596763; }
+  .card { padding: 1rem; border: 1px solid #D2D9D6; border-radius: 6px; margin: 1rem 0; }
+
+  /* ===========================================================
+     LESSON 14: Animations — @keyframes. A transition (lesson 13)
+     only ever moves between TWO states (start, end). @keyframes
+     runs on its own, with as many steps as you define, and can
+     loop forever — for things nothing "triggers", like a spinner.
+     =========================================================== */
+
+  /* --- @keyframes and percentage steps: name the animation, then
+     describe what it looks like at each % of its duration. --------- */
+  @keyframes spin {
+    from { transform: rotate(0deg); }     /* same as 0% */
+    to   { transform: rotate(360deg); }   /* same as 100% */
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50%      { transform: scale(1.15); opacity: 0.7; }
+  }
+  @keyframes slideIn {
+    0%   { transform: translateX(-20px); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
+  }
+
+  /* --- The animation shorthand: name duration easing delay
+     iteration-count direction fill-mode ----------------------------- */
+  .spinner {
+    width: 32px; height: 32px;
+    border: 4px solid #E1F0ED;
+    border-top-color: #0E7C70;
+    border-radius: 50%;
+    animation: spin 800ms linear infinite;   /* infinite = loops forever */
+  }
+  .pulse-dot {
+    width: 16px; height: 16px; background: #A96A22; border-radius: 50%;
+    animation: pulse 1200ms ease-in-out infinite;
+  }
+
+  /* --- animation-fill-mode: without it, an element SNAPS BACK to
+     its pre-animation styles the instant the animation ends —
+     surprising if the animation was meant to leave it in its final
+     state. fill-mode: forwards keeps the LAST keyframe's styles
+     applied after the animation finishes. --------------------------- */
+  .slide-in-item {
+    animation: slideIn 400ms ease-out forwards;   /* forwards = stay at 100% after finishing */
+  }
+  .snap-back-item {
+    animation: slideIn 400ms ease-out;   /* no fill-mode -> jumps back to translateX(-20px) after */
+  }
+
+  /* --- A loading skeleton — a very common real use of @keyframes -- */
+  @keyframes shimmer {
+    0%   { background-position: -200px 0; }
+    100% { background-position: 200px 0; }
+  }
+  .skeleton {
+    height: 16px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #EEF1F8 25%, #DDE4F0 37%, #EEF1F8 63%);
+    background-size: 400px 100%;
+    animation: shimmer 1.4s ease infinite;
+  }
+
+  /* --- Compositor-friendly properties only: exactly the same rule
+     as transitions (lesson 13) — animate transform and opacity,
+     avoid animating width/height/top/left/margin, for the same
+     GPU-vs-layout-recalculation reason. ------------------------------ */
+
+  /* --- Respecting reduced motion — an infinite spin/pulse is
+     exactly the kind of motion that's uncomfortable for some
+     visitors; this is even more important here than for
+     transitions, since these run WITHOUT user action at all. -------- */
+  @media (prefers-reduced-motion: reduce) {
+    .spinner, .pulse-dot, .skeleton { animation: none; }
+    .slide-in-item, .snap-back-item { animation: none; opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Animations</h1>
+
+<div class="card" style="display:flex; gap: 24px; align-items:center;">
+  <div>
+    <p class="note">infinite spin</p>
+    <div class="spinner"></div>
+  </div>
+  <div>
+    <p class="note">infinite pulse</p>
+    <div class="pulse-dot"></div>
+  </div>
+</div>
+
+<div class="card">
+  <p class="note">animation-fill-mode — reload this page to replay both. The top item KEEPS its final position (fill-mode: forwards); the bottom one snaps back to its starting offset the instant the animation ends (no fill-mode):</p>
+  <div class="slide-in-item" style="background:#E1F0ED; padding:8px; border-radius:4px; margin-bottom:8px;">forwards — stays in place</div>
+  <div class="snap-back-item" style="background:#FBEFE1; padding:8px; border-radius:4px;">no fill-mode — snaps back</div>
+</div>
+
+<div class="card">
+  <p class="note">A loading skeleton — @keyframes shimmering a gradient's position, a common real-world use:</p>
+  <div class="skeleton" style="width:80%; margin-bottom:8px;"></div>
+  <div class="skeleton" style="width:60%; margin-bottom:8px;"></div>
+  <div class="skeleton" style="width:70%;"></div>
+</div>
+
+<p class="note">This page also respects <code>prefers-reduced-motion: reduce</code> — every animation above stops if that OS setting is on.</p>
+
+</body>
+</html>

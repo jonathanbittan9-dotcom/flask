@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>03 — The cascade and specificity</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+  .note { color: #596763; }
+  .card { padding: 1.25rem; border: 2px solid #D2D9D6; border-radius: 6px; margin-top: 1rem; }
+
+  /* ===========================================================
+     LESSON 3: The cascade — why "my CSS isn't applying" happens,
+     and how the browser actually decides, in order:
+       1. ORIGIN       — your stylesheet beats the browser's defaults
+       2. SPECIFICITY  — the more specific selector wins (most conflicts
+                          are decided right here)
+       3. SOURCE ORDER — if specificity TIES, the rule written LAST wins
+       4. !important    — sits above all of it; a last resort
+     =========================================================== */
+
+  /* --- Counting specificity: three numbers, (ids, classes, elements),
+         compared LEFT TO RIGHT like version numbers, NOT decimal:
+         0,1,0 beats 0,0,15 — one class beats fifteen elements. ------- */
+
+  /*   p                 -> 0,0,1  (one element)                        */
+  /*   .demo-title       -> 0,1,0  (one class — beats any # of elements)*/
+  /*   .card p           -> 0,1,1                                       */
+  /*   .card .demo-note  -> 0,2,0  (beats .card p)                      */
+  /*   #showcase p       -> 1,0,1  (one id beats any # of classes)      */
+  /*   :hover, [attr]    -> counts as a class                           */
+  /*   ::before           -> counts as an element                       */
+  /*   *                  -> 0,0,0 — adds nothing                       */
+
+  p                { color: red; }              /* 0,0,1 */
+  .card p          { color: #2F4E93; }           /* 0,1,1 — this WINS over the bare p above */
+  #showcase p      { color: #0E7C70; }           /* 1,0,1 — this wins over EVERYTHING above */
+
+  /* Same specificity -> SOURCE ORDER decides. Whichever of these two
+     is written LAST wins. Swap them and reload to prove it: */
+  .demo-note { color: #A96A22; }
+  .demo-note { color: #596763; }   /* written second -> this one wins */
+
+  /* --- Inheritance: some properties pass down to children for free.
+         color, font-family, font-size, line-height, text-align DO.
+         border, padding, background, width do NOT. Set typography
+         once on body (as done above) and it flows down everywhere;
+         box properties need setting on each element that needs them. */
+
+  /* An inherited value loses to ANY rule that targets the element
+     directly, no matter how weak that rule's specificity is: */
+  #showcase { color: teal; }               /* sets color, INHERITED by children below */
+  #showcase .literal-p { color: black; }   /* 0,1,1 beats the inherited teal, even though
+                                               teal came from an id-level rule up the tree —
+                                               inheritance always loses to a DIRECT match. */
+
+  /* --- !important: escapes the cascade entirely -------------------- */
+  .trap { color: red !important; }
+  /* Uncomment the line below: normally 0,1,0 vs 0,1,0 -> source order
+     would make THIS win (it's written later) — but it can't, because
+     !important on .trap outranks everything that isn't ALSO !important. */
+  /* .trap { color: green; } */
+</style>
+</head>
+<body>
+
+<h1>The cascade and specificity</h1>
+
+<div class="card" id="showcase">
+  <p class="literal-p">This paragraph is inside #showcase — id-level specificity (1,0,1) wins over the .card p rule (0,1,1) and the bare p rule (0,0,1) both. It's also DIRECTLY targeted by <code>#showcase .literal-p</code>, which is why it isn't the inherited teal from #showcase's own color.</p>
+</div>
+
+<div class="card">
+  <p>This paragraph is inside a plain .card — <code>.card p</code> (0,1,1) wins here, over the bare <code>p</code> rule (0,0,1).</p>
+  <p class="demo-note">This one has class="demo-note" — both demo-note rules tie at 0,1,0, so the one written LAST in the &lt;style&gt; block wins (grey, not orange).</p>
+</div>
+
+<p class="trap">This text is forced red by !important. Uncomment the rule right below it in the &lt;style&gt; block, reload, and watch it stay red anyway — that's the trap: the only way to override an !important rule normally is with ANOTHER !important, which is how stylesheets spiral out of control.</p>
+
+<h3>Three things to check before reaching for !important</h3>
+<ol>
+  <li>Open DevTools, inspect the element, and read the Styles panel — a crossed-out rule shows you exactly what overrode it and where.</li>
+  <li>Check the selector actually matches: right class, right element, no typo.</li>
+  <li>Check for an unclosed brace in a rule ABOVE the one you're debugging — it can silently disable everything after it (lesson 1).</li>
+</ol>
+
+</body>
+</html>

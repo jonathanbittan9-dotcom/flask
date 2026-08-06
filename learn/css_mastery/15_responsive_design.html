@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- The viewport meta tag: without this, mobile browsers render the
+     page at a fake desktop width (~980px) and zoom out to fit it,
+     making everything tiny. This tells the browser "use the device's
+     actual width, at 1:1 zoom." Every responsive page needs this line
+     — it's not optional, and it's easy to forget. -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>15 — Responsive design</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+  .note { color: #596763; }
+  .card { padding: 1rem; border: 1px solid #D2D9D6; border-radius: 6px; margin: 1rem 0; }
+
+  /* ===========================================================
+     LESSON 15: Responsive design — one stylesheet that works from
+     a phone to a wide monitor.
+     =========================================================== */
+
+  /* --- Mobile-first: write the SMALL-screen layout as your base
+     (no media query needed), then use min-width queries to ADD
+     complexity as space becomes available. This is the opposite
+     of writing a desktop layout first and cramming it smaller. ---- */
+  .stack {
+    display: flex;
+    flex-direction: column;   /* base (mobile): stacked vertically */
+    gap: 12px;
+  }
+  @media (min-width: 640px) {
+    .stack {
+      flex-direction: row;    /* wider screens: side by side */
+    }
+  }
+  .stack > div { flex: 1; background: #EEF1F8; padding: 12px; border-radius: 6px; }
+
+  /* --- Choosing breakpoints from your CONTENT, not device names.
+     "iPhone width" and "iPad width" become wrong the moment a new
+     device ships. Instead: resize a real browser window until YOUR
+     layout starts looking cramped, and put the breakpoint there.
+     640px above wasn't picked to match a phone — it's roughly
+     where two side-by-side cards each got too narrow to read well. */
+
+  /* --- Fluid layouts with minmax/clamp — no breakpoint at all --- */
+  .fluid-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));  /* lesson 10 */
+    gap: 12px;
+  }
+  .fluid-grid > div { background: #E1F0ED; padding: 12px; border-radius: 6px; text-align:center; }
+
+  .fluid-heading {
+    font-size: clamp(1.3rem, 1rem + 2vw, 2.2rem);   /* lesson 5 — no media query needed */
+    margin: 0;
+  }
+
+  /* --- Responsive images: srcset lets the BROWSER pick which file
+     to download based on its own screen size/density — instead of
+     shipping one large image to every visitor regardless of need.
+     Shown as reference only (needs real image files to demonstrate):
+
+       <img src="photo-800.jpg"
+            srcset="photo-400.jpg 400w, photo-800.jpg 800w, photo-1600.jpg 1600w"
+            sizes="(min-width: 640px) 50vw, 100vw"
+            alt="description">
+
+     sizes tells the browser how WIDE the image will actually be
+     displayed at each breakpoint; srcset lists the files available
+     at each intrinsic width; the browser combines both with its own
+     screen density to fetch the smallest file that still looks sharp. */
+
+  .breakpoint-indicator { padding: 8px 12px; border-radius: 6px; background: #F2F5F3; font-weight: 600; }
+  .breakpoint-indicator::before { content: "Narrow layout (< 640px)"; }
+  @media (min-width: 640px) {
+    .breakpoint-indicator::before { content: "Wide layout (≥ 640px)"; }
+    .breakpoint-indicator { background: #E1F0ED; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Responsive design</h1>
+
+<div class="card">
+  <p class="breakpoint-indicator"></p>
+  <p class="note">Resize this browser window past 640px wide and watch that label (and the layout below) change live — no page reload needed.</p>
+</div>
+
+<div class="card">
+  <p class="note">Mobile-first flex — stacked below 640px, side-by-side above it:</p>
+  <div class="stack"><div>Panel A</div><div>Panel B</div><div>Panel C</div></div>
+</div>
+
+<div class="card">
+  <p class="note">A fluid grid — auto-fit + minmax, no breakpoint at all, from lesson 10:</p>
+  <div class="fluid-grid"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div></div>
+</div>
+
+<div class="card">
+  <h2 class="fluid-heading">A heading that scales continuously with the window</h2>
+  <p class="note">clamp(1.3rem, 1rem + 2vw, 2.2rem) — no jump at a breakpoint, just continuous scaling.</p>
+</div>
+
+<h3>Testing without a device lab</h3>
+<p class="note">Browser DevTools (F12) has a device toolbar (Ctrl+Shift+M in Chrome/Edge) that simulates common screen sizes AND lets you drag to any arbitrary width — enough to catch nearly every real responsive bug without owning the physical device.</p>
+
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>04 — The box model</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+  .note { color: #596763; }
+
+  /* ===========================================================
+     LESSON 4: The box model
+     Every element is a rectangle, built from the inside out:
+       content -> padding -> border -> margin
+     padding  = space INSIDE the border, takes the background color
+     border   = the line itself
+     margin   = space OUTSIDE, always transparent
+     =========================================================== */
+
+  /* --- The sizing trap ------------------------------------------- */
+  /* By default, width sets the CONTENT box only — padding and border
+     get ADDED on top of it: */
+  .content-box {
+    box-sizing: content-box;   /* the default, shown explicitly here */
+    width: 200px;
+    padding: 20px;
+    border: 5px solid #A96A22;
+    /* actual rendered width: 200 + 20+20 + 5+5 = 250px */
+  }
+
+  /* --- The fix everyone applies ------------------------------------ */
+  * , *::before, *::after {
+    box-sizing: border-box;   /* put this at the top of EVERY stylesheet you write */
+  }
+  /* With border-box, width means "the element occupies exactly this,
+     padding and border fit INSIDE it." Content shrinks to make room
+     instead of the box growing past the number you wrote. */
+  .border-box {
+    width: 200px;
+    padding: 20px;
+    border: 5px solid #0E7C70;
+    /* rendered width: exactly 200px */
+  }
+
+  /* --- Shorthand order: clockwise from the top, T R B L ("TRouBLe") - */
+  .shorthand-demo {
+    padding: 10px 24px 30px 8px;   /* top | right | bottom | left */
+    border: 1px solid #2F4E93;
+  }
+
+  /* --- Margin collapse: adjacent VERTICAL margins merge into ONE,
+         the LARGER of the two, not their sum. Horizontal margins
+         never collapse. --------------------------------------------- */
+  .collapse-demo p { margin-bottom: 40px; background: #F2F5F3; padding: 4px 8px; }
+  .collapse-demo p + p { margin-top: 20px; }
+  /* Gap between these two paragraphs is 40px (the larger), NOT 60px. */
+
+  /* gap on a flex/grid container does NOT collapse — it's the modern
+     fix when margin collapse gives you less space than you expected: */
+  .gap-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;   /* exactly 20px between every child, never at the ends */
+  }
+  .gap-demo p { background: #F2F5F3; padding: 4px 8px; margin: 0; }
+
+  .card { padding: 1rem; border: 2px solid #ccc; border-radius: 6px; margin: 1rem 0; }
+  .box-diagram { font-family: monospace; white-space: pre; font-size: .8rem; color: #596763; }
+</style>
+</head>
+<body>
+
+<h1>The box model</h1>
+
+<pre class="box-diagram">┌─────────────── margin ───────────────┐
+│  ┌──────────── border ────────────┐  │
+│  │  ┌────────  padding  ───────┐  │  │
+│  │  │        content           │  │  │
+│  │  └──────────────────────────┘  │  │
+│  └────────────────────────────────┘  │
+└──────────────────────────────────────┘</pre>
+
+<div class="card">
+  <p class="note">content-box (the default) — width:200px, padding:20px, border:5px. Actual rendered width is <strong>250px</strong>, not 200:</p>
+  <div class="content-box" style="background:#FBEFE1;">200+40+10</div>
+</div>
+
+<div class="card">
+  <p class="note">border-box — same numbers, but width stays <strong>exactly 200px</strong> because padding and border fit inside:</p>
+  <div class="border-box" style="background:#E1F0ED;">still 200</div>
+</div>
+
+<div class="card">
+  <p class="note">Four-value shorthand — 10px top, 24px right, 30px bottom, 8px left:</p>
+  <div class="shorthand-demo" style="background:#EEF1F8;">TRouBLe order</div>
+</div>
+
+<div class="card collapse-demo">
+  <p class="note" style="margin-bottom:.5rem;">Margin collapse — first paragraph has margin-bottom:40px, second has margin-top:20px. Measure the visible gap: it's 40px, not 60px.</p>
+  <p>first paragraph</p>
+  <p>second paragraph</p>
+</div>
+
+<div class="card gap-demo">
+  <p class="note" style="margin:0 0 .5rem;">Same idea with flex + gap:20px instead — exactly 20px between items, and it doesn't collapse:</p>
+  <p>first item</p>
+  <p>second item</p>
+  <p>third item</p>
+</div>
+
+</body>
+</html>

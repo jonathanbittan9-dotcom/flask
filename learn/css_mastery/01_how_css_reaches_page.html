@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>01 — How CSS reaches the page</title>
+<style>
+  /* ===========================================================
+     LESSON 1: How CSS reaches the page
+     =========================================================== */
+
+  /* HTML says what things ARE. CSS says what they LOOK LIKE.
+     Keeping those separate is why one stylesheet can restyle a
+     hundred pages at once — change the CSS, every page using it
+     updates, with zero HTML edits. */
+
+  /* --- Anatomy of a rule ------------------------------------- */
+  h1 {
+    color: #0E7C70;       /* h1        = the SELECTOR: which elements this hits    */
+    font-size: 2rem;      /* color     = a PROPERTY                                */
+  }                        /* #0E7C70   = its VALUE                                 */
+                            /* property + value together = a DECLARATION            */
+                            /* the semicolon ends each declaration. The last one    */
+                            /* may omit it, but don't — adding a line later breaks. */
+
+  /* Slash-star, star-slash is the ONE comment syntax CSS has — there is
+     no // line comment. A stray // in a real stylesheet doesn't error,
+     it just breaks whatever declaration it lands on, silently. */
+
+  body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+  .note { color: #596763; }
+
+  /* --- Three ways to attach CSS — demonstrated on this exact page --- */
+
+  /* 1. INLINE — highest priority, least reusable. See the <p> below
+        with style="..." directly on it. Avoid this in real projects:
+        it can't be reused, and it silently outranks your stylesheet
+        (lesson 3 explains exactly why). */
+
+  /* 2. INTERNAL — this whole <style> block, right here in <head>.
+        Fine for one-off pages, and for this exact learning series. */
+
+  /* 3. EXTERNAL — a separate .css file linked with <link>. What real
+        projects use. In your Flask project it looks like:
+
+          learn/
+            hello.py
+            static/css/style.css
+            templates/home.html
+
+        <link rel="stylesheet"
+              href="{{ url_for('static', filename='css/style.css') }}">
+
+        Use url_for(), not a hardcoded "/static/css/style.css" — it
+        survives the app being mounted under a subpath, and it stays
+        consistent with how every other URL in a Flask template gets
+        built. */
+
+  .card { padding: 20px; border: 2px solid #0E7C70; border-radius: 6px; margin-top: 1.5rem; }
+</style>
+</head>
+<body>
+
+<h1>How CSS reaches the page</h1>
+
+<p>This heading is styled by the internal &lt;style&gt; block above — teal color,
+2rem size. Open this file in a text editor and read the <code>&lt;style&gt;</code>
+block; it's the real lesson content.</p>
+
+<p style="color: #A96A22; font-weight: bold;">
+  This paragraph is styled INLINE, with a style="..." attribute directly on
+  the tag. It works, but it can't be reused anywhere else, and — as lesson 3
+  explains — it beats almost anything in your stylesheet, which is exactly
+  why it's discouraged for anything beyond a one-off experiment.
+</p>
+
+<div class="card">
+  <p class="note">
+    This box has class="card". Try it yourself: change the border color and
+    border-radius values above, save, and reload (<kbd>Ctrl+Shift+R</kbd> to
+    force-bypass the cache — browsers cache CSS aggressively, and this
+    wastes more beginner time than any other single thing in CSS).
+  </p>
+</div>
+
+<h2>Try breaking it</h2>
+<p>
+  In the &lt;style&gt; block, delete the closing <code>}</code> of the
+  <code>h1</code> rule and reload. The <code>h1</code> rule will swallow
+  everything below it, and <code>.note</code>'s styling disappears — CSS
+  fails <strong>silently</strong>, no error, just missing styles. That's why
+  a syntax-highlighting editor (which visibly shows unmatched braces) is
+  worth having before you write much more CSS than this.
+</p>
+
+</body>
+</html>

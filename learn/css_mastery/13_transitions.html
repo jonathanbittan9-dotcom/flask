@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>13 — Transitions</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+  .note { color: #596763; }
+  .card { padding: 1rem; border: 1px solid #D2D9D6; border-radius: 6px; margin: 1rem 0; }
+
+  /* ===========================================================
+     LESSON 13: Transitions — making state changes (hover, focus,
+     a class toggled by JS) feel intentional instead of abrupt.
+     =========================================================== */
+
+  /* --- The transition shorthand: property, duration, easing, delay */
+  .btn {
+    background: #0E7C70;
+    color: white;
+    border: 0;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: background-color 200ms ease-in-out, transform 200ms ease-in-out;
+    /*           ^property           ^duration ^easing    (delay omitted -> 0s) */
+  }
+  .btn:hover { background: #0A5C53; transform: translateY(-2px); }
+  .btn:active { transform: translateY(0); }
+
+  /* --- Which properties are CHEAP to animate vs EXPENSIVE.
+     transform and opacity are cheap — the browser's compositor
+     can animate them on the GPU without recalculating page layout
+     at all. Animating width, height, top/left, or margin forces a
+     LAYOUT recalculation on every single frame, which is visibly
+     janky on anything but the simplest page. Prefer transform:
+     translate(...) over changing left/top, and transform: scale(...)
+     over changing width/height directly. ---------------------------- */
+  .cheap-demo  { transition: transform 300ms ease; }
+  .cheap-demo:hover { transform: scale(1.1); }              /* cheap: GPU-composited */
+
+  .expensive-demo { transition: width 300ms ease; width: 100px; }
+  .expensive-demo:hover { width: 160px; }                    /* works, but forces layout every frame —
+                                                                  fine for one element, risky at scale */
+
+  /* --- Easing curves communicate weight and intent.
+     linear   -> mechanical, constant speed (good for a spinner, not for UI)
+     ease     -> the default, gentle start and end
+     ease-out -> fast start, slow finish — feels responsive, common for
+                 things ENTERING (a menu opening)
+     ease-in  -> slow start, fast finish — common for things LEAVING ------- */
+  .ease-linear   { transition: transform 600ms linear; }
+  .ease-out-demo { transition: transform 600ms ease-out; }
+  .ease-in-demo  { transition: transform 600ms ease-in; }
+  .easing-row:hover .ease-linear,
+  .easing-row:hover .ease-out-demo,
+  .easing-row:hover .ease-in-demo { transform: translateX(120px); }
+
+  /* --- prefers-reduced-motion: some visitors get physically
+     uncomfortable (dizziness, nausea) from motion — this media
+     query respects an OS-level accessibility setting they've
+     already turned on. Not a nice-to-have: treat it like the
+     contrast requirement from lesson 6. ------------------------------ */
+  @media (prefers-reduced-motion: reduce) {
+    .btn, .cheap-demo, .expensive-demo, .ease-linear, .ease-out-demo, .ease-in-demo {
+      transition: none !important;
+    }
+  }
+
+  .easing-row { display: flex; flex-direction: column; gap: 12px; padding: 8px; background: #F2F5F3; border-radius: 6px; }
+  .easing-box { width: 40px; height: 40px; background: #A96A22; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<h1>Transitions</h1>
+
+<div class="card">
+  <p class="note">Hover / click the button — background-color and transform both animate over 200ms:</p>
+  <button class="btn">Hover and click me</button>
+</div>
+
+<div class="card" style="display:flex; gap:24px; align-items:center;">
+  <div>
+    <p class="note">Cheap: transform (GPU-composited)</p>
+    <div class="cheap-demo" style="width:80px;height:80px;background:#0E7C70;border-radius:8px;"></div>
+  </div>
+  <div>
+    <p class="note">Expensive: width (forces layout)</p>
+    <div class="expensive-demo" style="height:80px;background:#2F4E93;border-radius:8px;"></div>
+  </div>
+</div>
+<p class="note" style="margin-top:-.5rem;">Hover either box — both animate, but the width version is doing more work under the hood on every frame.</p>
+
+<div class="card easing-row">
+  <p class="note" style="margin:0;">Hover this whole box — three boxes race with different easing curves, same duration:</p>
+  <div><span class="note" style="font-size:.75rem;">linear</span><div class="easing-box ease-linear"></div></div>
+  <div><span class="note" style="font-size:.75rem;">ease-out</span><div class="easing-box ease-out-demo"></div></div>
+  <div><span class="note" style="font-size:.75rem;">ease-in</span><div class="easing-box ease-in-demo"></div></div>
+</div>
+
+<p class="note">This page also respects <code>prefers-reduced-motion: reduce</code> — if you have that OS setting on, every transition above is disabled automatically.</p>
+
+</body>
+</html>

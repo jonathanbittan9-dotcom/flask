@@ -1,0 +1,53 @@
+# 08_devops/docker-compose.yml
+#
+# Section 8: DevOps / Deployment — local multi-service environment
+#
+# Spins up the app AND its database together with one command, so a new
+# contributor doesn't need to manually install/configure MongoDB locally.
+#
+# Run:   docker compose up
+# Stop:  docker compose down
+#
+# NEW: this is YAML, not Python — `key: value` pairs, lists written with a
+# leading `-`, and nesting shown purely through indentation (no braces).
+# `services:` lists every container to run; each one under it (web, db) gets
+# its own config block.
+
+version: "3.9"
+
+services:
+  web:
+    build: .          # NEW: build the image from the Dockerfile in this folder
+                       # (instead of pulling a pre-built image like `db` does below)
+    ports:
+      - "5000:5000"   # NEW: "host_port:container_port" — makes the container's
+                       # port 5000 reachable at localhost:5000 on your machine
+    environment:
+      - MONGO_URI=mongodb://db:27017/rtl   # NEW: "db" here is resolved to the
+                                             # `db` service's container automatically —
+                                             # compose sets up internal networking
+                                             # so services can reach each other BY NAME
+      # SECRET_KEY is intentionally NOT set here — comes from a local
+      # .env file (git-ignored) or the host's real secret manager.
+    env_file:
+      - .env          # NEW: load additional environment variables from a file,
+                       # kept OUT of this checked-in config
+    depends_on:
+      - db            # NEW: start `db` before `web` (note: this only waits for
+                       # the container to START, not for Mongo to be fully READY —
+                       # real apps often need their own retry-on-connect logic too)
+    restart: unless-stopped   # auto-restart on crash, but not in a hot loop
+
+  db:
+    image: mongo:7    # NEW: pull this exact pre-built image from Docker Hub,
+                       # instead of building one
+    volumes:
+      - mongo_data:/data/db   # NEW: named volume — data survives container restarts
+                                # (without this, deleting the container would
+                                # wipe the database)
+    ports:
+      - "27017:27017"
+
+volumes:
+  mongo_data:   # NEW: declares the named volume referenced above — this is
+                 # what makes it persist independently of any one container

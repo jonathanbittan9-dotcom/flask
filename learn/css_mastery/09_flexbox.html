@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>09 — Flexbox</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+  .note { color: #596763; }
+  .card { padding: 1rem; border: 1px solid #D2D9D6; border-radius: 6px; margin: 1rem 0; }
+  .box { background: #0E7C70; color: white; padding: 8px 12px; border-radius: 4px; }
+
+  /* ===========================================================
+     LESSON 9: Flexbox — one-dimensional layout. Rows, columns,
+     toolbars. Two axes: MAIN axis (the direction items flow) and
+     CROSS axis (perpendicular to it).
+     =========================================================== */
+
+  /* --- flex-direction sets the main axis. row (default) = main
+     axis is horizontal. column = main axis is vertical. -------- */
+  .row-demo    { display: flex; flex-direction: row; gap: 8px; }
+  .column-demo { display: flex; flex-direction: column; gap: 8px; }
+
+  /* --- justify-content aligns along the MAIN axis.
+     align-items aligns along the CROSS axis. These are commonly
+     mixed up — the trick is: whichever direction flex-direction
+     points IS "justify"; the perpendicular one is "align". ------- */
+  .justify-demo { display: flex; justify-content: space-between; gap: 8px; background: #F2F5F3; padding: 8px; }
+  .align-demo   { display: flex; align-items: center; height: 100px; background: #F2F5F3; gap: 8px; }
+  .align-demo .box:nth-child(2) { padding: 20px 12px; }   /* taller, to show centering */
+
+  /* --- gap: modern, collapse-free spacing BETWEEN items — no
+     margin needed on children, no last-child cleanup required
+     (lesson 4 covered why this beats margin for this exact job). */
+
+  /* --- flex-grow / flex-shrink / flex-basis / the flex shorthand.
+     flex-basis: the item's starting size before growing/shrinking.
+     flex-grow: how much of any LEFTOVER space this item claims,
+       relative to its siblings' grow values.
+     flex-shrink: how much this item gives up if there ISN'T enough
+       space, relative to siblings.
+     flex: 1 (shorthand for grow:1 shrink:1 basis:0%) is the common
+     "share the space equally" rule. ------------------------------- */
+  .grow-demo { display: flex; gap: 8px; }
+  .grow-demo .fixed { flex: 0 0 80px; background: #A96A22; color: white; padding: 8px; border-radius: 4px; }
+  .grow-demo .flexible { flex: 1; background: #0E7C70; color: white; padding: 8px; border-radius: 4px; }
+
+  /* --- flex-wrap: responsive rows without a media query. nowrap
+     (default) squeezes everything onto one line, however small
+     that makes each item. wrap lets items drop to a new line once
+     they run out of room. ------------------------------------------ */
+  .wrap-demo { display: flex; flex-wrap: wrap; gap: 8px; }
+  .wrap-demo .box { flex: 1 1 120px; text-align: center; }
+
+  /* --- Common pattern: a navbar (space-between + centered items) --- */
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #2F4E93;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+  }
+  .navbar .links { display: flex; gap: 16px; }
+  .navbar a { color: white; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<h1>Flexbox</h1>
+
+<div class="card">
+  <p class="note">flex-direction: row (default) vs column — same three boxes:</p>
+  <div class="row-demo"><div class="box">1</div><div class="box">2</div><div class="box">3</div></div>
+  <div class="column-demo" style="margin-top:8px;"><div class="box">1</div><div class="box">2</div><div class="box">3</div></div>
+</div>
+
+<div class="card">
+  <p class="note">justify-content: space-between (main axis) — spreads items to the edges:</p>
+  <div class="justify-demo"><div class="box">A</div><div class="box">B</div><div class="box">C</div></div>
+  <p class="note" style="margin-top:1rem;">align-items: center (cross axis) — vertically centers items of different heights within a 100px-tall row:</p>
+  <div class="align-demo"><div class="box">short</div><div class="box">taller box</div><div class="box">short</div></div>
+</div>
+
+<div class="card">
+  <p class="note">flex-basis/grow — a fixed 80px sidebar next to a flexible main area that claims all remaining space:</p>
+  <div class="grow-demo">
+    <div class="fixed">80px fixed</div>
+    <div class="flexible">flex: 1 — takes the rest</div>
+  </div>
+</div>
+
+<div class="card">
+  <p class="note">flex-wrap: wrap — shrink this browser window narrower and these boxes drop to new lines, no media query involved:</p>
+  <div class="wrap-demo">
+    <div class="box">item one</div>
+    <div class="box">item two</div>
+    <div class="box">item three</div>
+    <div class="box">item four</div>
+  </div>
+</div>
+
+<div class="card">
+  <p class="note">A real pattern — navbar with space-between + centered links:</p>
+  <nav class="navbar">
+    <strong>Brand</strong>
+    <div class="links"><a href="#">Home</a><a href="#">About</a><a href="#">Contact</a></div>
+  </nav>
+</div>
+
+</body>
+</html>

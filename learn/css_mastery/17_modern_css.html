@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>17 — Modern CSS worth knowing</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+  .note { color: #596763; }
+  .card { padding: 1rem; border: 1px solid #D2D9D6; border-radius: 6px; margin: 1rem 0; }
+
+  /* ===========================================================
+     LESSON 17: Modern CSS — features that landed recently and
+     changed how CSS is actually written. All supported in current
+     versions of every major browser as of when this was written.
+     =========================================================== */
+
+  /* --- :has() — the "parent selector" CSS never used to have.
+     Style a .card differently based on what's INSIDE it — something
+     that used to require JavaScript entirely. ----------------------- */
+  .card:has(.flagged) { border-color: #A96A22; background: #FBEFE1; }
+  .flagged { color: #A96A22; font-weight: 600; }
+
+  /* --- Container queries vs media queries: a media query responds
+     to the VIEWPORT's size. A container query responds to its own
+     CONTAINING ELEMENT's size — so the same component looks right
+     whether it's in a wide main column or a narrow sidebar, which a
+     viewport-based media query can't express at all. ---------------- */
+  .cq-wrapper { container-type: inline-size; container-name: card-wrapper; border: 1px dashed #ccc; padding: 8px; }
+  .cq-card { padding: 8px; background: #EEF1F8; border-radius: 4px; }
+  @container card-wrapper (min-width: 300px) {
+    .cq-card { display: flex; gap: 12px; align-items: center; }
+  }
+  /* Drag this browser window narrow/wide — the OUTER page width barely
+     matters; what matters is the .cq-wrapper box's own width, which you
+     can prove by comparing it against .stack from lesson 15 (a plain
+     media query), which only cares about the viewport regardless of
+     where it's nested. */
+
+  /* --- Native nesting — write related rules INSIDE their parent
+     selector, no preprocessor (Sass/Less) required anymore. `&`
+     stands in for the parent selector explicitly. ------------------- */
+  .nested-demo {
+    padding: 8px;
+    border: 1px solid #D2D9D6;
+    border-radius: 6px;
+
+    & p {                 /* equivalent to writing ".nested-demo p" separately */
+      color: #596763;
+      margin: 0;
+    }
+
+    &:hover {              /* equivalent to ".nested-demo:hover" */
+      border-color: #0E7C70;
+    }
+  }
+
+  /* --- @layer — explicit control over the cascade's ORIGIN order
+     from lesson 3, independent of source order or specificity.
+     Rules in an earlier-declared layer always lose to a later
+     layer, no matter how specific the earlier layer's selector is —
+     useful for keeping "reset < base < components < utilities" from
+     ever fighting a specificity war with each other. ------------------- */
+  @layer reset, base, utilities;
+  @layer base {
+    .layer-demo { color: #2F4E93; }   /* loses to utilities below, DESPITE matching equally */
+  }
+  @layer utilities {
+    .u-accent { color: #A96A22; }     /* wins — utilities was declared as the LATER layer */
+  }
+
+  /* --- aspect-ratio, inset, logical properties ---------------------- */
+  .aspect-demo { aspect-ratio: 16 / 9; background: #E1F0ED; border-radius: 6px; }
+  /* aspect-ratio: 16/9 keeps that ratio at ANY width, no padding-hack needed. */
+
+  .inset-demo { position: relative; height: 60px; background: #F2F5F3; border-radius: 6px; }
+  .inset-demo span { position: absolute; inset: 8px; background: #0E7C70; color: white; border-radius: 4px;
+                      display: flex; align-items: center; justify-content: center; }
+  /* inset: 8px is shorthand for top/right/bottom/left: 8px all at once. */
+
+  .logical-demo { padding-inline: 16px; padding-block: 8px; background: #EEF1F8; border-radius: 6px; }
+  /* padding-inline = left+right in a left-to-right language, but
+     AUTOMATICALLY flips to right+left in a right-to-left one (Hebrew,
+     Arabic) — logical properties adapt to writing direction, physical
+     ones (padding-left/right) don't. Worth knowing for a Hebrew UI. */
+
+  /* --- color-mix() and new color spaces: blend two colors without
+     precomputing the hex value by hand. -------------------------------- */
+  .mix-demo { background: color-mix(in srgb, #0E7C70 60%, white); border-radius: 6px; padding: 12px; color: #1a1a1a; }
+</style>
+</head>
+<body>
+
+<h1>Modern CSS worth knowing</h1>
+
+<div class="card">
+  <p class="note">:has() — this card's border/background change ONLY because it contains a .flagged element inside it:</p>
+  <p class="flagged">⚑ This item is flagged</p>
+  <p>Ordinary content beside it.</p>
+</div>
+
+<div class="card cq-wrapper">
+  <p class="note">Container query — resize the BROWSER window (not just this box) and notice the layout below responds to its own container's width, once it crosses 300px, independent of viewport-based breakpoints:</p>
+  <div class="cq-card"><strong>Icon</strong><span>Label text — goes side-by-side once the container itself is wide enough</span></div>
+</div>
+
+<div class="nested-demo card">
+  <p>Nested rules — hover this whole box; the border color change comes from a nested &:hover selector, written inline instead of as a separate rule.</p>
+</div>
+
+<div class="card">
+  <p class="note">@layer — both rules below match this element equally, but the LATER-declared layer (utilities) wins regardless of selector specificity:</p>
+  <p class="layer-demo u-accent">Colored by @layer utilities, not @layer base</p>
+</div>
+
+<div class="card" style="display:flex; gap:16px;">
+  <div style="flex:1;">
+    <p class="note">aspect-ratio: 16/9</p>
+    <div class="aspect-demo"></div>
+  </div>
+  <div style="flex:1;">
+    <p class="note">inset: 8px shorthand</p>
+    <div class="inset-demo"><span>centered via inset</span></div>
+  </div>
+</div>
+
+<div class="card logical-demo">Logical padding-inline/padding-block — flips automatically in a right-to-left layout.</div>
+
+<div class="card mix-demo">color-mix(in srgb, teal 60%, white) — blended without precomputing a hex value.</div>
+
+</body>
+</html>

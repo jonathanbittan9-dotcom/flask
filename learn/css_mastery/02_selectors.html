@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>02 — Selectors</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+  .note { color: #596763; }
+
+  /* ===========================================================
+     LESSON 2: Selectors — choosing which elements a rule hits
+     =========================================================== */
+
+  /* h2          -> every <h2> on the page      (type selector)  */
+  /* .card       -> every element class="card"  (class selector) */
+  /* #header     -> the ONE element id="header" (id selector)    */
+  /* *           -> everything                                  */
+  /* h2, .note   -> both, at once (a selector list)               */
+
+  /* Use classes for nearly everything. Type selectors are too
+     broad (they hit every <button>, forever, including ones you
+     add later that were meant to look different); ids are so
+     specific they become nearly impossible to override later
+     (lesson 3 shows exactly why). */
+
+  /* --- Combinators: relationships between elements ----------- */
+  .card p          { color: #596763; }        /* ANY <p> anywhere inside .card (descendant) */
+  .card > h2       { color: #2F4E93; margin-top: 0; }  /* a DIRECT CHILD h2 of .card */
+  h2 + p           { font-style: italic; }     /* the <p> immediately AFTER an h2 (adjacent sibling) */
+  h2 ~ .flag       { color: #A96A22; }         /* EVERY .flag after an h2, same parent (general sibling) */
+
+  /* The space in ".card p" is itself an operator meaning "descendant".
+     ".card.active" with NO space is different: one element carrying
+     BOTH classes at once. */
+  .card.featured { border-color: #A96A22; }
+
+  /* --- Attribute selectors ------------------------------------ */
+  a[href^="https"]::after { content: " ↗"; font-size: .8em; }  /* starts with */
+  [data-status="done"]    { text-decoration: line-through; color: #999; }
+
+  /* --- Pseudo-classes: state ------------------------------------ */
+  button:hover      { background: #0E7C70; color: white; cursor: pointer; }
+  button:focus-visible { outline: 2px solid #0E7C70; outline-offset: 2px; }
+  li:first-child    { font-weight: 600; }
+  li:last-child     { color: #A96A22; }
+  li:nth-child(2n)  { background: #F2F5F3; }  /* every SECOND item */
+
+  /* Never remove focus styling (outline: none) without replacing it
+     with something equally visible — keyboard users navigate ENTIRELY
+     by the focus ring. :focus-visible shows the ring for Tab
+     navigation while hiding it on a mouse click, which is the
+     behavior people actually expect. */
+
+  /* --- Pseudo-elements: parts of an element ---------------------- */
+  .note::before { content: "→ "; color: #A96A22; }
+  /* One colon for a STATE (:hover). Two for a generated PART
+     (::before). ::before needs a `content` property or it renders
+     nothing at all — try deleting the content line above and reload. */
+
+  .card { padding: 1.25rem; border: 2px solid #0E7C70; border-radius: 6px; margin-top: 1rem; }
+  ul { padding-left: 1.5rem; }
+</style>
+</head>
+<body>
+
+<h1>Selectors</h1>
+<p class="note">Every rule above targets something on this page. Read the &lt;style&gt; block, then look for the effect below.</p>
+
+<div class="card featured">
+  <h2>Card title</h2>
+  <p>First paragraph, styled by .card p and italicized by h2 + p (it's immediately after the h2).</p>
+  <p class="flag">Second paragraph — this one is a .flag, colored by h2 ~ .flag (general sibling, not adjacent).</p>
+  <a href="https://example.com">An external link</a> gets a ↗ marker from the attribute selector.
+</div>
+
+<h3>A list, for the pseudo-classes above</h3>
+<ul>
+  <li>first item — bold, via :first-child</li>
+  <li>second item — shaded, via :nth-child(2n)</li>
+  <li data-status="done">third item — struck through, via [data-status="done"]</li>
+  <li>fourth item — shaded again</li>
+  <li>last item — colored, via :last-child</li>
+</ul>
+
+<button>Hover or Tab to me</button>
+
+<h3>Try it</h3>
+<p class="note">
+  Change <code>.card > h2</code> to just <code>.card h2</code> (drop the
+  <code>&gt;</code>) — nothing visibly changes here because the h2 IS a
+  direct child. Now imagine a &lt;div&gt; wrapping the h2 inside the
+  card: <code>.card h2</code> would still match it, <code>.card &gt; h2</code>
+  would not. That's the whole difference between "descendant" and
+  "direct child."
+</p>
+
+</body>
+</html>

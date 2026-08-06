@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>07 — Typography</title>
+<style>
+  .note { color: #596763; }
+  .card { padding: 1rem; border: 1px solid #D2D9D6; border-radius: 6px; margin: 1rem 0; }
+
+  /* ===========================================================
+     LESSON 7: Typography — font stacks, scale, line-height, measure
+     =========================================================== */
+
+  /* --- Font stacks: a comma-separated list of fallbacks. The
+     browser uses the first one actually installed on the visitor's
+     machine. "system-ui" isn't one font — it resolves to whatever
+     each OS already uses for its own UI (San Francisco on Mac,
+     Segoe UI on Windows), so text looks native everywhere with zero
+     download cost. ------------------------------------------------ */
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    max-width: 40rem;
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+  .serif-demo { font-family: Georgia, "Times New Roman", serif; }
+  .mono-demo  { font-family: "Cascadia Code", Consolas, monospace; }
+
+  /* --- @font-face and font-display: loading a custom font. Not
+     demonstrated live here (it needs a real font file), but the
+     shape: --------------------------------------------------------
+
+       @font-face {
+         font-family: "Inter";
+         src: url("/static/fonts/inter.woff2") format("woff2");
+         font-display: swap;
+       }
+
+     font-display: swap shows the fallback font IMMEDIATELY, then
+     swaps to the custom one once it's downloaded — text is readable
+     from the first paint instead of invisible while the font loads. */
+
+  /* --- A modular type scale: each size a fixed ratio (1.25 here)
+     bigger than the last, instead of picking sizes by eye. --------- */
+  .scale-xs { font-size: 0.8rem; }    /* 12.8px */
+  .scale-sm { font-size: 1rem; }      /* 16px  — base */
+  .scale-md { font-size: 1.25rem; }   /* 20px  x1.25 */
+  .scale-lg { font-size: 1.563rem; }  /* 25px  x1.25 again */
+  .scale-xl { font-size: 1.953rem; }  /* 31px  x1.25 again */
+
+  /* --- line-height: unitless is the right default. 1.5 means
+     "1.5 times THIS element's own font-size" and correctly scales
+     if the font-size changes anywhere below it. A px value doesn't
+     scale, and a % value behaves surprisingly once inherited. ----- */
+  .tight-lines { line-height: 1.1; }
+  .loose-lines { line-height: 1.8; }
+
+  /* --- letter-spacing: nudge for headlines/small-caps, almost
+     never for body text — tightening body text hurts readability. */
+  .spaced-caps { letter-spacing: 0.08em; text-transform: uppercase; font-size: .8rem; }
+
+  /* --- text-wrap: balance — evens out the LAST line of a heading
+     instead of leaving one orphan word alone on it. Headings only —
+     it's expensive to compute, skip it on body paragraphs. -------- */
+  .balanced-heading { text-wrap: balance; max-width: 20ch; }
+
+  /* --- Measure: 60-75 characters per line is the readable sweet
+     spot — much wider and the eye loses the start of the next line
+     tracking back. ch is the width of a "0" in the current font,
+     so max-width in ch approximates character count directly. ----- */
+  .measured-text { max-width: 65ch; }
+
+  /* --- Weight and style: reach for an actual bold/italic FONT
+     FILE (font-weight/font-style triggering a real variant) over
+     letting the browser fake-bold or fake-italicize a font that
+     doesn't have one — a synthesized ("faux") bold looks visibly
+     worse, especially at small sizes. font-synthesis: none turns
+     the faking off entirely once you supply real weights yourself. */
+</style>
+</head>
+<body>
+
+<h1>Typography</h1>
+
+<div class="card">
+  <p class="note">Font stacks — three families, same text:</p>
+  <p>system-ui (default body font) — native to your OS.</p>
+  <p class="serif-demo">Georgia / Times fallback — a serif stack.</p>
+  <p class="mono-demo">Cascadia Code / Consolas fallback — a monospace stack.</p>
+</div>
+
+<div class="card">
+  <p class="note">A modular scale — each step ×1.25 the last:</p>
+  <p class="scale-xs">scale-xs — 0.8rem</p>
+  <p class="scale-sm">scale-sm — 1rem (base)</p>
+  <p class="scale-md">scale-md — 1.25rem</p>
+  <p class="scale-lg">scale-lg — 1.563rem</p>
+  <p class="scale-xl">scale-xl — 1.953rem</p>
+</div>
+
+<div class="card">
+  <p class="note">line-height — same three sentences, tight vs loose:</p>
+  <p class="tight-lines">Tight line-height (1.1) crowds wrapped lines together, uncomfortable to read past a sentence or two — line-height 1.1 is really meant for a single-line heading, not a paragraph like this one.</p>
+  <p class="loose-lines">Loose line-height (1.8) gives each line room to breathe, which is closer to what a body paragraph like this one actually wants for comfortable reading over several lines.</p>
+</div>
+
+<div class="card">
+  <p class="spaced-caps">spaced small caps label</p>
+  <h2 class="balanced-heading">A longer heading that wraps across two lines evenly</h2>
+  <p class="note measured-text">This paragraph is capped at max-width: 65ch — resize the browser window narrower and wider; past 65 characters per line it simply wraps, it never grows wider than that regardless of how much room is available, because lines longer than ~75 characters get hard to track visually from one line to the next.</p>
+</div>
+
+</body>
+</html>

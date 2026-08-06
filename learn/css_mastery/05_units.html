@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>05 — Units that scale</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+  .note { color: #596763; }
+  .card { padding: 1rem; border: 1px solid #D2D9D6; border-radius: 6px; margin: 1rem 0; }
+
+  /* ===========================================================
+     LESSON 5: Units — px, rem, em, %, vh — and why the choice
+     decides whether your page survives a zoom or a font-size change.
+     =========================================================== */
+
+  /* --- px: the only absolute unit worth using. Fixed size,
+     predictable — correct for things that should NOT scale:
+     borders, hairlines, small offsets. ------------------------- */
+  .px-border { border: 1px solid #0E7C70; }
+
+  /* --- rem: relative to the ROOT font size (16px by default).
+     Default to rem for almost everything: type, spacing, widths.
+     A user who raises their browser's base font size for
+     readability gets a page that scales WITH them — a page built
+     entirely in px ignores that setting, which is an accessibility
+     failure, not a style preference. ----------------------------- */
+  .rem-text { font-size: 1.5rem; }     /* 24px at the default root size */
+
+  /* --- em: relative to the CURRENT element's font size. Use it
+     for spacing that should track its OWN text size — button
+     padding is the classic case, so one rule serves every button
+     size. WARNING: em COMPOUNDS when nested — three levels of
+     font-size:1.2em starting from 16px lands at 16 * 1.2^3 =
+     27.6px, not 16*1.2 = 19.2px. rem never compounds, because it
+     always refers to the root, never the parent. --------------- */
+  .em-button { padding: 0.5em 1em; font-size: 1rem; border: 1px solid; background: white; }
+  .em-button.large { font-size: 1.5rem; }   /* padding scales automatically with it */
+
+  .compound-em > div { font-size: 1.2em; padding: 4px; border: 1px dashed #ccc; }
+  /* nest three of these and the innermost text is 1.2*1.2*1.2 = 1.728x the base */
+
+  /* --- %, vh, vw: relative to the container / the viewport ------ */
+  .percent-demo { width: 50%; background: #EEF1F8; padding: 8px; }
+  /* 100vw includes the SCROLLBAR's width on desktop, which can trigger
+     an unwanted horizontal scrollbar — width:100% usually does what
+     you actually meant instead. */
+
+  /* --- clamp(): the modern answer to responsive sizing ----------- */
+  .clamp-heading {
+    font-size: clamp(1.2rem, 1rem + 2vw, 2.4rem);
+    /*                minimum   preferred    maximum          */
+    /* the middle value scales with the viewport; the outer two
+       stop it going too small or too large. Resize this BROWSER
+       WINDOW and watch it respond — one declaration replaces a
+       stack of media queries. */
+    margin: 0;
+  }
+</style>
+</head>
+<body>
+
+<h1>Units that scale</h1>
+
+<div class="card">
+  <p class="note">px — a fixed 1px border, correct for a hairline that should never change:</p>
+  <div class="px-border" style="padding:8px;">border: 1px solid</div>
+</div>
+
+<div class="card">
+  <p class="note">rem vs em, at two different font sizes. Padding on the button below is in em, so it scales proportionally with each button's own font-size — one rule, two sizes:</p>
+  <button class="em-button">normal button</button>
+  <button class="em-button large">large button</button>
+</div>
+
+<div class="card compound-em">
+  <p class="note">em compounding — font-size:1.2em nested three levels deep, starting from 16px:</p>
+  <div>level 1 (19.2px)
+    <div>level 2 (23px)
+      <div>level 3 (27.6px) — this is why rem is the safer default</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <p class="note">% — this box is 50% of its parent's width:</p>
+  <div class="percent-demo">width: 50%</div>
+</div>
+
+<div class="card">
+  <h2 class="clamp-heading">Resize the window to see me scale</h2>
+  <p class="note">clamp(1.2rem, 1rem + 2vw, 2.4rem) — never smaller than 1.2rem, never larger than 2.4rem, fluid in between.</p>
+</div>
+
+<h3>Rules of thumb</h3>
+<ul>
+  <li>Font sizes: rem.</li>
+  <li>Spacing: rem, from a small scale (0.25 / 0.5 / 1 / 1.5 / 2 / 3).</li>
+  <li>Borders and hairlines: px.</li>
+  <li>Text column width: ch, around 60–75 characters.</li>
+  <li>Fluid type or spacing: clamp().</li>
+</ul>
+
+</body>
+</html>
