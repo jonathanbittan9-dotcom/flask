@@ -263,7 +263,7 @@ class AppConfig:
             #        relationship as super().__init__() from
             #        core_language_mastery.py, but for the creation step
             #        instead of the initialization step
-            cls._instance.settings = {}
+            cls._ins0tance.settings = {}
         return cls._instance
 
 
