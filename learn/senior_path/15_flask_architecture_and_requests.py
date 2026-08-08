@@ -17,7 +17,7 @@ Then visit: http://127.0.0.1:5051/
 import time
 from flask import (
     Flask, Blueprint, request, redirect, url_for, flash,
-    render_template_string, abort, g, jsonify,
+    render_template_string, abort, g, jsonify, current_app,
 )
 # New words in this line (beyond testlearn.py's Flask basics and
 # 14_web_fundamentals.py's request/make_response/session):
@@ -42,6 +42,7 @@ from flask import (
 # ---------------------------------------------------------------------------
 class BaseConfig:
     SECRET_KEY = "demo-only-not-for-production"   # needed for session/flash
+    SITE_NAME = "Senior Path Library"
 
 
 class DevConfig(BaseConfig):
@@ -76,7 +77,17 @@ def list_books():
         f"<li>{b['title']} — {'available' if b['available'] else 'borrowed'}</li>"
         for b in BOOKS.values()
     )
-    return f"<ul>{rows}</ul>"
+    site_name = current_app.config["SITE_NAME"]
+    # New words in this line:
+    #   current_app  -> a PROXY that always points at whichever Flask app is
+    #        handling the CURRENT request, without this module needing to
+    #        import `app` directly. That matters specifically here: this
+    #        function lives in books_bp, a Blueprint — it has no `app`
+    #        variable in scope at all (create_app() builds `app` in a
+    #        DIFFERENT function, further down this file), yet current_app
+    #        still resolves correctly, because Flask tracks which app is
+    #        "active" per-request behind the scenes.
+    return f"<h3>{site_name}</h3><ul>{rows}</ul>"
 
 
 @books_bp.route("/<int:book_id>/borrow", methods=["GET", "POST"])
@@ -180,6 +191,39 @@ def create_app(config_class=DevConfig):
 
 
 # ---------------------------------------------------------------------------
+# Application Context vs. Request Context
+# ---------------------------------------------------------------------------
+APP_VS_REQUEST_CONTEXT_NOTES = """
+Flask actually tracks TWO separate stacks, not one:
+
+  Application context  -> makes current_app and g valid. Pushed whenever
+      Flask needs to know "which app is this?" — automatically during a
+      real request, but also manually when you need app-aware code OUTSIDE
+      of one (16_flask_data_auth_apis.py's `with app.app_context():` at
+      startup, before any request has happened, is exactly this case).
+
+  Request context      -> makes request and session valid. Only exists
+      while an actual HTTP request is being handled — pushing a request
+      context ALSO pushes an application context along with it, since you
+      can't have a request without knowing which app it's for, but not the
+      other way around.
+
+Why this distinction matters in practice: current_app works during
+db.create_all() at startup in 16_flask_data_auth_apis.py, because
+app.app_context() was pushed — but request would NOT work there, because
+there's no actual incoming request at startup. Reaching for `request` or
+`session` outside of an active view function (e.g. in a background job,
+or a script run at import time) raises RuntimeError: Working outside of
+request context — current_app / g are the ones that also work at startup.
+"""
+
+
+def demo_context_notes():
+    print("\n--- Application Context vs. Request Context ---")
+    print(APP_VS_REQUEST_CONTEXT_NOTES)
+
+
+# ---------------------------------------------------------------------------
 # Exercise every piece above without a real browser
 # ---------------------------------------------------------------------------
 def demo_client(app):
@@ -193,6 +237,7 @@ def demo_client(app):
     resp = client.get("/books/")
     print("GET /books/ ->", resp.status_code)
     assert resp.status_code == 200
+    assert b"Senior Path Library" in resp.data   # proves current_app.config resolved correctly
 
     resp = client.get("/books/1/borrow")
     print("GET /books/1/borrow ->", resp.status_code)
@@ -213,6 +258,7 @@ def demo_client(app):
 
 
 if __name__ == "__main__":
+    demo_context_notes()
     app = create_app(DevConfig)
     demo_client(app)
     print("\nStarting demo Flask server on http://127.0.0.1:5051 (Ctrl+C to stop)...")

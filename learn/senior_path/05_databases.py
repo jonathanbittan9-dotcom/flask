@@ -110,6 +110,59 @@ def demo_normalization_and_joins():
 
 
 # ---------------------------------------------------------------------------
+# Indexes & EXPLAIN QUERY PLAN — why the SAME query can be fast or slow
+# ---------------------------------------------------------------------------
+def demo_indexes():
+    print("\n--- Indexes & EXPLAIN QUERY PLAN ---")
+
+    conn = sqlite3.connect(":memory:")
+    conn.execute("CREATE TABLE books (id INTEGER PRIMARY KEY, title TEXT, author_id INTEGER)")
+    conn.executemany(
+        "INSERT INTO books (title, author_id) VALUES (?, ?)",
+        [(f"Book {i}", i % 50) for i in range(5000)],
+        # New words in this line:
+        #   .executemany(sql, list_of_param_tuples)  -> runs the SAME
+        #        parameterized statement once per tuple in the list — much
+        #        faster than calling .execute() 5000 times in a loop, because
+        #        the SQL only has to be parsed/planned ONCE
+    )
+    conn.commit()
+
+    plan_before = conn.execute(
+        "EXPLAIN QUERY PLAN SELECT * FROM books WHERE author_id = 7"
+    ).fetchall()
+    # New words in this line:
+    #   EXPLAIN QUERY PLAN  -> a SQL prefix (SQLite-specific spelling; other
+    #        databases use EXPLAIN or EXPLAIN ANALYZE) that doesn't actually
+    #        RUN the query — it returns a description of HOW the database
+    #        intends to execute it, e.g. "scan every row" vs. "use an index"
+    print("plan WITHOUT an index:", plan_before)
+    # A "SCAN books" plan means: check author_id against all 5000 rows, one
+    # by one, to find matches — O(n) no matter how big the table gets.
+
+    conn.execute("CREATE INDEX idx_books_author_id ON books(author_id)")
+    # New words in this line:
+    #   CREATE INDEX name ON table(column)  -> builds a separate, sorted
+    #        lookup structure for that column (conceptually similar to the
+    #        binary search tree in 03_data_structures_algorithms.py) — a
+    #        one-time cost to build and maintain, in exchange for much faster
+    #        lookups on that column afterward
+
+    plan_after = conn.execute(
+        "EXPLAIN QUERY PLAN SELECT * FROM books WHERE author_id = 7"
+    ).fetchall()
+    print("plan WITH an index:", plan_after)
+    # Now the plan should mention "USING INDEX idx_books_author_id" — SQLite
+    # jumps straight to matching rows instead of scanning all 5000.
+
+    conn.close()
+    # Real-world tradeoff: indexes speed up READS but slow down WRITES
+    # (every INSERT/UPDATE now has to update the index too) and use extra
+    # disk space — index the columns you actually filter/JOIN/ORDER BY on
+    # often, not every column defensively.
+
+
+# ---------------------------------------------------------------------------
 # ORM (SQLAlchemy) vs raw driver calls
 # ---------------------------------------------------------------------------
 def demo_orm():
@@ -323,6 +376,7 @@ def demo_caching():
 
 if __name__ == "__main__":
     demo_normalization_and_joins()
+    demo_indexes()
     demo_orm()
     demo_migrations()
     demo_connection_pooling_notes()

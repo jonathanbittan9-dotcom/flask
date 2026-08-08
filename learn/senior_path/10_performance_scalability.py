@@ -81,6 +81,69 @@ def demo_profiling():
 
 
 # ---------------------------------------------------------------------------
+# timeit — micro-benchmarking two specific implementations against each other
+# ---------------------------------------------------------------------------
+def demo_timeit():
+    print("\n--- timeit: comparing two implementations ---")
+    import timeit
+    # New words in this line:
+    #   timeit (module)  -> different JOB than cProfile above: cProfile
+    #        answers "where in this whole PROGRAM is time going?" — timeit
+    #        answers "which of these two specific SNIPPETS is faster, and by
+    #        how much?" It also runs the snippet many times and reports the
+    #        best result, smoothing out noise a single time.perf_counter()
+    #        measurement (used elsewhere in this course) can't average away.
+
+    concat_with_plus = timeit.timeit(
+        'result = ""\nfor i in range(1000):\n    result += str(i)',
+        number=1000,
+    )
+    # New words in this line:
+    #   timeit.timeit(code_string, number=N)  -> runs `code_string` N times
+    #        back-to-back and returns the TOTAL elapsed seconds for all N
+    #        runs combined (not per-run) — the code is passed as a STRING,
+    #        deliberately isolated from this file's own variables/imports,
+    #        so the measurement isn't polluted by anything else going on
+
+    concat_with_join = timeit.timeit(
+        'result = "".join(str(i) for i in range(1000))',
+        number=1000,
+    )
+
+    print(f"string += in a loop:     {concat_with_plus:.4f}s for 1000 runs")
+    print(f"''.join(generator):      {concat_with_join:.4f}s for 1000 runs")
+    print("(join is faster: += rebuilds a new string object on every iteration;")
+    print(" join builds the result once, from all the pieces at the same time)")
+
+
+# ---------------------------------------------------------------------------
+# Memory footprint — sys.getsizeof()
+# ---------------------------------------------------------------------------
+def demo_memory_footprint():
+    print("\n--- Memory footprint: sys.getsizeof() ---")
+
+    small_list = [1, 2, 3]
+    big_list = list(range(100_000))
+    a_generator = (i for i in range(100_000))
+
+    print("sys.getsizeof(small_list):", sys.getsizeof(small_list), "bytes")
+    # New words in this line:
+    #   sys.getsizeof(obj)  -> the number of bytes obj itself occupies in
+    #        memory right now — useful for confirming a suspicion ("is this
+    #        object actually as big as I think?") rather than guessing
+    print("sys.getsizeof(big_list):  ", sys.getsizeof(big_list), "bytes")
+    print("sys.getsizeof(a_generator):", sys.getsizeof(a_generator), "bytes")
+    print("""
+The generator stays tiny no matter how many items it WILL eventually
+produce, because it doesn't hold them all at once — this is the same
+laziness from core_language_mastery.py's generator section, now shown as
+an actual memory-size difference instead of just a timing one. Prefer a
+generator over a list whenever you're going to consume something once,
+in order, and don't need random access (list[500]) or len() on it.
+""")
+
+
+# ---------------------------------------------------------------------------
 # The N+1 query problem
 # ---------------------------------------------------------------------------
 def setup_db():
@@ -252,6 +315,8 @@ threads release the GIL while waiting. Rule of thumb:
 
 if __name__ == "__main__":
     demo_profiling()
+    demo_timeit()
+    demo_memory_footprint()
     demo_n_plus_1()
     demo_asyncio()
     demo_threading_vs_multiprocessing()

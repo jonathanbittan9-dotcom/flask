@@ -4,6 +4,7 @@ import json
 import bot
 from config import app_config
 from logs_setup import log
+from typing import Protocol
 app = Flask(__name__)
 
 format=("[%(levelname)s] %(message)s")
@@ -23,12 +24,11 @@ def payment_process():
         log.info("trying to return the payment of the user...")
         respone = render_template("practice.html" , amount=amount_charged)
         log.info("returned the the payment of the user🤑")
-
+        return respone
     except Exception:
          log.exception("failed to return the payment of the user❌")
          return render_template("errorpage.html")
 # class login_system:
-
 
 if __name__ == "__main__":
     log.info("the system ran ✔️")

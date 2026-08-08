@@ -10,6 +10,8 @@ Section 3: Data Structures & Algorithms
 Run: python 03_data_structures_algorithms.py
 """
 
+import functools
+import sys
 import time
 import heapq
 # New words in this line:
@@ -331,6 +333,69 @@ def demo_sorting_searching():
 
 
 # ---------------------------------------------------------------------------
+# Sorting with a key function
+# ---------------------------------------------------------------------------
+def demo_sort_key():
+    print("\n--- sorted(key=...) ---")
+
+    books = [
+        {"title": "1984", "pages": 328},
+        {"title": "Dune", "pages": 412},
+        {"title": "Foundation", "pages": 255},
+    ]
+
+    by_pages = sorted(books, key=lambda b: b["pages"])
+    # New words in this line:
+    #   key=lambda item: expr  -> tells sorted() what to compare INSTEAD of
+    #        the items themselves — here, each dict gets compared by its
+    #        "pages" value rather than Python trying (and failing) to compare
+    #        two dicts directly. The lambda runs once per item, not once per
+    #        COMPARISON, so this stays efficient even on long lists.
+    print("by pages:", [b["title"] for b in by_pages])
+
+    by_title_length = sorted(books, key=lambda b: len(b["title"]), reverse=True)
+    # New words in this line:
+    #   reverse=True  -> sorts descending instead of the default ascending
+    print("longest title first:", [b["title"] for b in by_title_length])
+    # Real-world use of this exact pattern: sorting a leaderboard by score,
+    # or a list of Book domain objects (04_software_architecture.py) by
+    # `key=lambda b: b.title` instead of a dict key.
+
+
+# ---------------------------------------------------------------------------
+# Two-Pointer Technique — O(n) instead of the naive O(n^2) nested loop
+# ---------------------------------------------------------------------------
+def has_pair_with_sum(sorted_items, target):
+    """Do any two numbers in a SORTED list add up to target?"""
+    left, right = 0, len(sorted_items) - 1
+    # New words in this line:
+    #   left, right  -> two indices, starting at OPPOSITE ends of the list —
+    #        the "two pointers" the technique is named for
+    while left < right:
+        current_sum = sorted_items[left] + sorted_items[right]
+        if current_sum == target:
+            return sorted_items[left], sorted_items[right]
+        elif current_sum < target:
+            left += 1    # sum too small -> move the LEFT pointer up to grow it
+        else:
+            right -= 1   # sum too big -> move the RIGHT pointer down to shrink it
+    return None
+    # Why this beats a nested loop: a naive `for i: for j:` check is O(n^2) —
+    # every pair gets compared. Because the list is SORTED, moving either
+    # pointer in the right direction rules out a whole range of pairs at
+    # once, so the whole scan is O(n) — each pointer moves at most n times
+    # total, never backwards.
+
+
+def demo_two_pointer():
+    print("\n--- Two-Pointer Technique ---")
+    numbers = [1, 3, 4, 6, 8, 11, 15]
+    print("pair summing to 14:", has_pair_with_sum(numbers, 14))
+    print("pair summing to 5:", has_pair_with_sum(numbers, 5))
+    print("pair summing to 100 (none exists):", has_pair_with_sum(numbers, 100))
+
+
+# ---------------------------------------------------------------------------
 # Recursion & Dynamic Programming
 # ---------------------------------------------------------------------------
 def fib_naive(n):
@@ -370,6 +435,52 @@ def demo_recursion_dp():
     print("Same answer, memoized version is dramatically faster — that's DP.")
 
 
+@functools.lru_cache(maxsize=None)
+# New words in this line:
+#   @functools.lru_cache(maxsize=None)  -> the standard-library version of
+#        the same idea as fib_memo's hand-written `cache = {}` above — see
+#        core_language_mastery.py's lru_cache section for the full
+#        explanation. Shown here specifically to compare against fib_memo:
+#        same O(n) result, zero manual cache-dict bookkeeping.
+def fib_lru(n):
+    if n <= 1:
+        return n
+    return fib_lru(n - 1) + fib_lru(n - 2)
+
+
+def demo_recursion_limit():
+    print("\n--- Recursion depth limit ---")
+
+    print("fib_lru(25) via lru_cache:", fib_lru(25))
+    print("default recursion limit:", sys.getrecursionlimit())
+    # New words in this line:
+    #   sys.getrecursionlimit()  -> Python (unlike some languages) does NOT
+    #        optimize away deep recursion — every recursive call adds a real
+    #        frame to the call stack, and Python caps how deep that's allowed
+    #        to go (1000 by default) to avoid crashing the whole process with
+    #        a C-level stack overflow.
+
+    def count_down(n):
+        if n <= 0:
+            return 0
+        return count_down(n - 1)
+
+    try:
+        count_down(10_000)
+    except RecursionError as e:
+        # New words in this line:
+        #   RecursionError  -> the specific built-in exception Python raises
+        #        once a call chain hits that limit — a signal to either
+        #        rewrite the recursion as a loop, or (rarely) raise the limit
+        #        with sys.setrecursionlimit(n), which just moves the ceiling,
+        #        it doesn't remove it
+        print("Expected error:", e)
+    # fib_naive(25) above is already ~half a million calls DEEP in branching
+    # (not stack DEPTH — it returns before recursing further each time), so
+    # it doesn't hit this; count_down(10_000) hits it because each call
+    # stays on the stack waiting for the one below it to return first.
+
+
 if __name__ == "__main__":
     demo_big_o()
     demo_stack()
@@ -380,4 +491,7 @@ if __name__ == "__main__":
     demo_graph()
     demo_heap()
     demo_sorting_searching()
+    demo_sort_key()
+    demo_two_pointer()
     demo_recursion_dp()
+    demo_recursion_limit()

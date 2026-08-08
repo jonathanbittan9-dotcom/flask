@@ -216,6 +216,92 @@ def demo_circuit_breaker():
 
 
 # ---------------------------------------------------------------------------
+# Idempotency keys — making retries safe for actions with side effects
+# ---------------------------------------------------------------------------
+class PaymentProcessor:
+    """
+    The retry_with_backoff() function above is only safe to retry blindly
+    for READ operations. Retrying a PAYMENT is dangerous: if the first
+    attempt actually succeeded but the response got lost on the way back
+    (network blip), a naive retry charges the customer TWICE for one order.
+    """
+    def __init__(self):
+        self._processed: dict[str, str] = {}   # idempotency_key -> result
+
+    def charge(self, idempotency_key: str, amount: float) -> str:
+        if idempotency_key in self._processed:
+            # We've seen this EXACT request before — return the same result
+            # instead of charging again. The caller can't tell the
+            # difference between "first successful attempt" and "safely
+            # replayed retry" — which is the whole point.
+            return self._processed[idempotency_key] + " (replayed, not re-charged)"
+
+        result = f"Charged ${amount:.2f}"
+        self._processed[idempotency_key] = result
+        return result
+
+
+def demo_idempotency_key():
+    print("\n--- Idempotency Keys ---")
+
+    processor = PaymentProcessor()
+    key = "order-482-attempt"   # in real code: a UUID the CLIENT generates
+    # once per logical action, and resends unchanged on every retry of that
+    # SAME action — a fresh key would defeat the whole mechanism.
+
+    print("first attempt:", processor.charge(key, 49.99))
+    print("network blip -> client retries with the SAME key:")
+    print("second attempt:", processor.charge(key, 49.99))
+    print("a genuinely NEW order uses a NEW key:")
+    print("different order:", processor.charge("order-483-attempt", 19.99))
+    # Real APIs (Stripe, for example) implement exactly this: pass an
+    # Idempotency-Key header, and the server stores request+response pairs
+    # keyed by it for a window of time (e.g. 24h), replaying the stored
+    # response for any duplicate instead of re-executing the action.
+
+
+# ---------------------------------------------------------------------------
+# Load balancing strategies (notes — routing traffic across many servers)
+# ---------------------------------------------------------------------------
+def demo_load_balancing_notes():
+    print("\n--- Load Balancing Strategies (notes) ---")
+    print("""
+A load balancer sits in front of multiple identical server instances and
+decides which one handles each incoming request.
+
+Round robin:
+    Request 1 -> server A, request 2 -> server B, request 3 -> server C,
+    request 4 -> server A again... Simple, and fine when every request
+    costs roughly the same amount of work.
+
+Least connections:
+    Send each new request to whichever server currently has the FEWEST
+    active requests in flight. Better than round robin when request cost
+    varies a lot — round robin can't tell it just sent 3 expensive requests
+    in a row to the same unlucky server.
+
+Weighted (round robin or least-connections):
+    Some servers get proportionally more traffic than others — useful when
+    instances aren't identical (a bigger machine can take more), or during
+    a canary deploy (see 08_devops/08_deployment_notes.py) where the new
+    version should only get a small weighted slice of traffic at first.
+
+IP hash / consistent hashing:
+    The SAME client (by IP, session id, or similar) always routes to the
+    SAME server, as long as that server stays healthy. Needed for "sticky
+    sessions" when server-side state isn't shared across instances (e.g.
+    an in-memory cache per server) — this course's TTLCache in
+    05_databases.py, if run on multiple servers without a shared Redis
+    behind it, is exactly the kind of per-instance state that would need
+    this.
+
+This is also what the health_check() route from 08_devops is FOR: a load
+balancer only routes to instances that report healthy, tying load
+balancing and zero-downtime deploys together.
+""")
+
+
+# ---------------------------------------------------------------------------
 # Capacity estimation (notes — pure back-of-envelope math, no code needed)
 # ---------------------------------------------------------------------------
 def demo_capacity_estimation():
@@ -240,4 +326,6 @@ if __name__ == "__main__":
     demo_lru_cache()
     demo_retry_backoff()
     demo_circuit_breaker()
+    demo_idempotency_key()
+    demo_load_balancing_notes()
     demo_capacity_estimation()

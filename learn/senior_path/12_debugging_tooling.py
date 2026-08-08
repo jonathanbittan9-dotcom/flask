@@ -18,6 +18,12 @@ sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 import logging
 import traceback
+import warnings
+# New words in this line:
+#   warnings (module)  -> see demo_warnings() near the end of this file for
+#        what it's for — imported up here with the rest, unlike some
+#        earlier files' habit of importing something right where it's
+#        first used (e.g. 09_security.py's `import html` inside a function)
 
 
 # ---------------------------------------------------------------------------
@@ -60,6 +66,36 @@ actually happening — which is most of real debugging.
 """)
     items = [{"price": 10, "quantity": 2}, {"price": 5, "quantity": 3}]
     print("calculate_total result:", calculate_total(items))
+
+
+# ---------------------------------------------------------------------------
+# Post-mortem debugging — inspecting a crash AFTER the fact
+# ---------------------------------------------------------------------------
+def demo_post_mortem_debugging():
+    print("\n--- Post-Mortem Debugging ---")
+    print("""
+breakpoint() above requires knowing IN ADVANCE where to pause. Sometimes a
+crash happens somewhere you didn't think to add one. Post-mortem debugging
+drops you into the debugger AT THE POINT OF THE CRASH, after it's already
+happened:
+
+Option 1 — run the whole script under pdb, drop in automatically on any
+uncaught exception:
+    python -m pdb -c continue my_script.py
+
+Option 2 — from inside an except block, or right after a crash in the
+same interactive session:
+    import pdb
+    pdb.post_mortem()   # or the shorter pdb.pm() right after a traceback
+
+Option 3 — inside a Jupyter/IPython session specifically:
+    %debug              # drops into the debugger at the last unhandled exception
+
+Once inside, it's the SAME (Pdb) prompt as breakpoint() above (p, n, s, c,
+l) — except now you're standing exactly where the exception was raised,
+with every local variable at that moment still inspectable, instead of
+having to guess where to place a breakpoint() ahead of time.
+""")
 
 
 # ---------------------------------------------------------------------------
@@ -162,8 +198,60 @@ shadows the builtin in testlearn.py before it ever ran.
 """)
 
 
+# ---------------------------------------------------------------------------
+# The warnings module — softer than raising, louder than a comment
+# ---------------------------------------------------------------------------
+def old_calculate_total(items):
+    """Still works, but callers should migrate to calculate_total() instead."""
+    warnings.warn(
+        "old_calculate_total() is deprecated, use calculate_total() instead",
+        DeprecationWarning,
+        stacklevel=2,
+        # New words in this line:
+        #   DeprecationWarning  -> a built-in warning CATEGORY (there are
+        #        others: UserWarning, RuntimeWarning) — lets code that reads
+        #        warnings filter/handle different kinds differently
+        #   stacklevel=2  -> points the warning at whoever CALLED this
+        #        function, instead of at this line inside it — so the
+        #        reported location is the code that needs to change, not
+        #        this deprecated function's own internals
+    )
+    return calculate_total(items)
+
+
+def demo_warnings():
+    print("\n--- warnings module ---")
+
+    items = [{"price": 10, "quantity": 2}]
+
+    with warnings.catch_warnings(record=True) as caught:
+        # New words in this line:
+        #   warnings.catch_warnings(record=True)  -> a context manager
+        #        (same `with` syntax from core_language_mastery.py) that
+        #        captures warnings into a list instead of just printing them
+        #        — used here so this demo can show you what got caught,
+        #        rather than relying on you noticing console output
+        warnings.simplefilter("always")
+        # New words in this line:
+        #   .simplefilter("always")  -> without this, Python's default
+        #        filter shows each DISTINCT warning only ONCE per location,
+        #        to avoid flooding output — "always" overrides that for
+        #        this demo so it's guaranteed to show up
+        old_calculate_total(items)
+
+    for w in caught:
+        print(f"Caught: {w.category.__name__}: {w.message}")
+    # Real-world use: mark an old function/API deprecated with a warning
+    # instead of deleting it outright, giving other code time to migrate
+    # before a future release removes it for real. ruff/mypy (see linting
+    # notes above) can also be configured to flag DeprecationWarning usages
+    # across a codebase automatically.
+
+
 if __name__ == "__main__":
     demo_debugger()
+    demo_post_mortem_debugging()
     demo_reading_stack_traces()
     demo_log_based_debugging()
     demo_linting_notes()
+    demo_warnings()

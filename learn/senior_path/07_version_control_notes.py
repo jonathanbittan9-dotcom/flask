@@ -26,6 +26,31 @@ def section(title, body):
     #        tabs, newlines)
 
 
+def demo_gitignore():
+    section(".gitignore (instead of committing generated files)", """
+# This repo's actual generated/scratch artifacts (see CLAUDE.md) — a
+# .gitignore file lists patterns git should never track or offer to commit:
+
+__pycache__/
+*.pyc
+logs/
+server_out.log
+.env
+
+# Without this, `git status` gets noisy with files nobody meant to commit
+# (compiled bytecode, local secrets, log output), and it's easy to
+# accidentally `git add .` one of them — an .env file with real credentials
+# committed once is compromised forever, even if you delete it in a later
+# commit (it's still sitting in history, in every clone, unless you rewrite
+# history — see `git filter-repo` / BFG Repo-Cleaner if that ever happens).
+
+# Add a NEW pattern any time you notice git offering to track something
+# that's generated, not authored:
+#   git status               # notice the unwanted file
+#   echo "server_out.log" >> .gitignore
+""")
+
+
 def demo_branching():
     section("Feature Branches (instead of main_fixed.py, main_optimized.py, ...)", """
 # Instead of copying main.py to main_optimized.py to try something safely:
@@ -132,10 +157,34 @@ git diff --stat                   # quick summary of what changed, file by file
 """)
 
 
+def demo_semantic_versioning():
+    section("Semantic Versioning & Tags", """
+# Version numbers as a promise to whoever depends on your code:
+#
+#   MAJOR.MINOR.PATCH   e.g. 2.4.1
+#
+#   MAJOR  -> incompatible/breaking change (callers WILL need to update)
+#   MINOR  -> new functionality, backward-compatible (safe to upgrade)
+#   PATCH  -> bug fix only, backward-compatible (always safe to upgrade)
+#
+# Tag the exact commit a release corresponds to:
+git tag -a v2.4.1 -m "Fix N+1 query in leaderboard route"
+git push origin v2.4.1
+
+# Why this matters beyond labeling: it's what 08_devops's rollback notes
+# mean by "roll back to the last good version" — a tag is a permanent,
+# findable pointer to a specific commit, so "deploy v2.4.0 again" is an
+# unambiguous instruction, not "whichever commit I THINK was good."
+git checkout v2.4.0   # inspect (or redeploy) exactly that released state
+""")
+
+
 if __name__ == "__main__":
+    demo_gitignore()
     demo_branching()
     demo_rebase_vs_merge()
     demo_conflicts()
     demo_commit_messages()
     demo_pr_and_review()
     demo_useful_commands()
+    demo_semantic_versioning()

@@ -60,6 +60,42 @@ def demo_status_codes():
 
 
 # ---------------------------------------------------------------------------
+# HTTP Methods — what each one PROMISES, not just what it does
+# ---------------------------------------------------------------------------
+HTTP_METHODS_NOTES = """
+GET     - fetch a resource. SAFE (no side effects) and IDEMPOTENT (calling
+          it 5 times has the same effect as calling it once — nothing
+          changes further each time).
+POST    - create something / trigger an action with side effects. NEITHER
+          safe nor idempotent — calling it twice can create two of
+          something. This is exactly why 15_flask_architecture_and_requests.py's
+          Post/Redirect/Get pattern exists: refreshing a page should never
+          silently re-run a POST.
+PUT     - replace a resource ENTIRELY with the given representation.
+          IDEMPOTENT (though not safe): PUT-ing the exact same body twice
+          leaves the resource in the same end state either time — unlike
+          POST, calling it again doesn't create a second copy.
+PATCH   - partially update a resource (e.g. just one field). Not
+          guaranteed idempotent in general, though many APIs design their
+          PATCH endpoints to behave that way in practice.
+DELETE  - remove a resource. IDEMPOTENT by convention: deleting an
+          already-deleted resource should report success (or 404), not
+          error out as if something new went wrong.
+
+"Idempotent" is the load-bearing word here: a client (or a proxy, or a
+retry-with-backoff helper like 11_system_design.py's) can safely resend an
+idempotent request if it's unsure whether the first one arrived — resending
+a POST without knowing that is how "I clicked buy once but got charged
+twice" bugs happen.
+"""
+
+
+def demo_http_methods():
+    print("\n--- HTTP Methods ---")
+    print(HTTP_METHODS_NOTES)
+
+
+# ---------------------------------------------------------------------------
 # Cookies vs. Sessions
 # ---------------------------------------------------------------------------
 COOKIES_VS_SESSIONS_NOTES = """
@@ -97,6 +133,7 @@ def index():
     <p>Look at the Response Headers for this request.</p>
     <p><a href="/whoami">/whoami</a> — sets a cookie and a session value</p>
     <p><a href="/cached-data">/cached-data</a> — demonstrates a Cache-Control header</p>
+    <p><a href="/api/cors-demo">/api/cors-demo</a> — demonstrates a CORS header</p>
     """
 
 
@@ -139,6 +176,50 @@ def cached_data():
     return response
 
 
+@app.route("/api/cors-demo")
+def cors_demo():
+    response = make_response('{"message": "cross-origin request allowed"}')
+    response.headers["Content-Type"] = "application/json"
+    response.headers["Access-Control-Allow-Origin"] = "https://trusted-frontend.example.com"
+    # New words in this line:
+    #   Access-Control-Allow-Origin  -> a response header telling the
+    #        BROWSER "javascript running on this listed origin is allowed to
+    #        read this response." Without it, a browser (not the server!)
+    #        blocks frontend JS on a different origin from reading the
+    #        response body at all, even though the request itself succeeded.
+    return response
+
+
+def demo_cors_notes():
+    print("\n--- CORS (Cross-Origin Resource Sharing) ---")
+    print("""
+"Origin" = scheme + domain + port. https://app.example.com and
+https://api.example.com are DIFFERENT origins, even though they share a
+parent domain — as are http://localhost:3000 and http://localhost:5000.
+
+The browser's SAME-ORIGIN POLICY blocks JavaScript on one origin from
+reading responses from a different origin BY DEFAULT — this is a browser
+security feature, not something the server can bypass by trying harder,
+and it's exactly what makes the CSRF defense in 09_security.py's demo_csrf()
+possible in the first place (an attacker's page can't read YOUR site's
+real CSRF token).
+
+CORS is the server explicitly OPTING BACK IN for specific origins, via
+response headers — see /api/cors-demo above:
+    Access-Control-Allow-Origin: https://trusted-frontend.example.com
+    Access-Control-Allow-Methods: GET, POST
+    Access-Control-Allow-Headers: Content-Type, Authorization
+
+This matters constantly in real Flask apps: a React/Vue frontend running
+on localhost:3000 during development calling a Flask API on localhost:5000
+IS a cross-origin request — "CORS error" in the browser console the first
+time you wire up a separate frontend is one of the most common early
+integration bugs. In real Flask projects, Flask-CORS (`pip install
+flask-cors`, then `CORS(app)`) handles the headers for you instead of
+setting them by hand on every single route like the demo above does.
+""")
+
+
 def demo_websocket_notes():
     print("\n--- WebSockets (notes) ---")
     print("""
@@ -160,7 +241,9 @@ Flask-SocketIO or plain `websockets`, rather than HTTP polling.
 
 if __name__ == "__main__":
     demo_status_codes()
+    demo_http_methods()
     print(COOKIES_VS_SESSIONS_NOTES)
+    demo_cors_notes()
     demo_websocket_notes()
     print("\nStarting demo Flask server on http://127.0.0.1:5050 (Ctrl+C to stop)...")
     app.run(port=5050, debug=True, use_reloader=False)

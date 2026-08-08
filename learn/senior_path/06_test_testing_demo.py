@@ -131,3 +131,85 @@ def test_borrow_sends_notification():
     # No real email/Discord message was sent — Mock just recorded the call.
     # This is essential for testing code that has side effects (network,
     # email, payments) without actually triggering them during test runs.
+
+
+# ---------------------------------------------------------------------------
+# monkeypatch — pytest's built-in fixture for temporarily changing things
+# ---------------------------------------------------------------------------
+def test_monkeypatch_env_var(monkeypatch):
+    # New words in this line:
+    #   monkeypatch (as a parameter)  -> a fixture pytest provides for you
+    #        automatically — no @pytest.fixture needed, no import needed,
+    #        it's built into pytest itself (unlike `library` above, which
+    #        YOU defined). It safely changes something for the duration of
+    #        ONE test, then automatically undoes the change afterward, even
+    #        if the test fails partway through.
+    monkeypatch.setenv("BOOK_SERVICE_MODE", "test")
+    # New words in this line:
+    #   .setenv(name, value)  -> sets an environment variable for this test
+    #        only — equivalent to os.environ["BOOK_SERVICE_MODE"] = "test",
+    #        except monkeypatch guarantees it's restored to whatever it was
+    #        before, right after this test finishes
+    import os
+    assert os.environ["BOOK_SERVICE_MODE"] == "test"
+
+
+def test_monkeypatch_attribute(library, monkeypatch):
+    def fake_is_prime_id(self, n):
+        return True   # pretend every id is prime, no matter what
+
+    monkeypatch.setattr(Library, "is_prime_id", fake_is_prime_id)
+    # New words in this line:
+    #   .setattr(obj, "name", new_value)  -> replaces obj.name with
+    #        new_value for this test only, restoring the original afterward.
+    #        Same underlying idea as unittest.mock.Mock() above, but for
+    #        swapping out a REAL method/attribute temporarily rather than
+    #        building a fake object from scratch — handy when you want most
+    #        of the real class's behavior, but need to force one specific
+    #        method's result for this one test.
+    assert library.is_prime_id(4) is True   # normally False — patched for this test
+
+
+# ---------------------------------------------------------------------------
+# Fixture scope & autouse
+# ---------------------------------------------------------------------------
+@pytest.fixture(scope="module")
+# New words in this line:
+#   scope="module"  -> without this, a fixture defaults to scope="function":
+#        pytest calls it fresh for EVERY test function (that's why `library`
+#        above always starts with exactly one book, per test). scope="module"
+#        instead builds it ONCE and reuses the same object for every test in
+#        this file — faster, but only safe for something read-only or that
+#        tests don't mutate in ways that would leak between them.
+def shared_read_only_catalog():
+    return {"1984", "Dune", "Foundation"}
+
+
+def test_catalog_contains_1984(shared_read_only_catalog):
+    assert "1984" in shared_read_only_catalog
+
+
+@pytest.fixture(autouse=True)
+# New words in this line:
+#   autouse=True  -> runs this fixture for EVERY test in the file
+#        automatically, even for tests that don't list it as a parameter at
+#        all. Used for setup that every test needs (e.g. resetting some
+#        global state) without having to remember to request it by name
+#        each time.
+def _log_test_boundaries():
+    print("\n  (test starting)")
+    yield
+    # New words in this line:
+    #   yield (inside a fixture)  -> same "setup, then pause, then teardown"
+    #        shape as core_language_mastery.py's @contextmanager — code
+    #        above yield runs before the test, code below runs after,
+    #        whether the test passed or failed
+    print("  (test finished)")
+
+
+# A note on conftest.py: fixtures defined in a file named conftest.py (in the
+# same directory or above) are AUTOMATICALLY available to every test file
+# nearby, with no import needed — pytest discovers conftest.py by name alone.
+# `library`, `shared_read_only_catalog`, etc. above would normally move to a
+# conftest.py once more than one test file needs them, instead of being
+# copy-pasted into each one.

@@ -175,7 +175,8 @@ def demo_health_check():
 def demo_rollback_notes():
     print("\n--- Rollback Strategy (notes) ---")
     print("""
-- Tag every deploy (git tag v1.4.2) so "roll back to the last good version"
+- Tag every deploy (git tag v1.4.2 — see 07_version_control_notes.py's
+  semantic versioning section) so "roll back to the last good version"
   is a known, findable commit, not guesswork.
 - Prefer deploying a previous known-good container image over trying to
   manually revert code changes under pressure during an incident.
@@ -185,8 +186,47 @@ def demo_rollback_notes():
 """)
 
 
+# ---------------------------------------------------------------------------
+# Deployment strategies — how NEW code actually reaches production traffic
+# ---------------------------------------------------------------------------
+def demo_deployment_strategies():
+    print("\n--- Deployment Strategies ---")
+    print("""
+Recreate (simplest, has downtime):
+    Stop the old version entirely, THEN start the new one.
+    Users see errors/downtime during the gap. Fine for internal tools,
+    risky for anything user-facing.
+
+Rolling deploy (what most platforms do by default):
+    Replace instances a few at a time — old and new versions both serve
+    real traffic simultaneously for a few minutes. Requires the health
+    checks from demo_health_check() above: an instance only receives
+    traffic once it reports healthy, and requires the new code to be
+    backward-compatible with in-flight requests started on the old version.
+
+Blue-Green (two full environments, instant cutover):
+    "Blue" = current production. "Green" = new version, deployed
+    completely separately, tested for real before anyone sees it.
+    Cut traffic over all at once (e.g. a load balancer / DNS switch).
+    Rollback is just switching back to blue — the old version is still
+    fully running, not torn down, until you're confident.
+
+Canary (gradual, risk-limited exposure):
+    Route a SMALL slice of real traffic (1%, then 10%, then 50%...) to the
+    new version while watching error rates/latency, before it gets 100%.
+    Catches a bad deploy after it affects a handful of users instead of
+    everyone — the tradeoff is more operational complexity (routing rules,
+    metrics comparison between the two versions) than a straight rolling
+    deploy.
+
+These aren't mutually exclusive — canary is often layered ON TOP of a
+rolling or blue-green deploy, as an extra gate before going to 100%.
+""")
+
+
 if __name__ == "__main__":
     demo_structured_logging()
     demo_environment_parity()
     demo_health_check()
     demo_rollback_notes()
+    demo_deployment_strategies()

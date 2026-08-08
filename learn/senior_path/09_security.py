@@ -16,6 +16,15 @@ Run: python 09_security.py
 
 import os
 import re
+import secrets
+# New words in this line:
+#   secrets  -> standard library module specifically for SECURITY-sensitive
+#        randomness (tokens, passwords, session ids). Different from the
+#        `random` module (random.randint/random.uniform, seen elsewhere in
+#        this course): `random` is fast but PREDICTABLE if an attacker
+#        learns its internal state — fine for simulations/games, wrong for
+#        anything security-related. `secrets` is slower but cryptographically
+#        unpredictable, which is what actually matters here.
 # New words in this line:
 #   re  -> standard library module for regular expressions (a mini
 #        pattern-matching language for text) — see USERNAME_PATTERN below
@@ -86,6 +95,61 @@ def demo_xss():
     #        so a browser displays them as literal text instead of
     #        interpreting them as markup/script
     print("GOOD (renders as inert text):", good_html)
+
+
+# ---------------------------------------------------------------------------
+# CSRF (Cross-Site Request Forgery)
+# ---------------------------------------------------------------------------
+def demo_csrf():
+    print("\n--- CSRF ---")
+    print("""
+The attack: a browser attaches cookies to EVERY request to a domain, even
+requests a DIFFERENT page silently triggered. If bank.com/transfer trusts
+"the session cookie is present" as proof the real user meant to do this, a
+hidden auto-submitting form sitting on evil.com can POST to
+bank.com/transfer using the victim's own browser — the cookie rides along
+for free, no password needed:
+
+    <!-- sitting on evil.com, auto-submits the instant the page loads -->
+    <form action="https://bank.com/transfer" method="POST">
+      <input type="hidden" name="to" value="attacker-account">
+      <input type="hidden" name="amount" value="1000">
+    </form>
+    <script>document.forms[0].submit()</script>
+""")
+
+    session_csrf_tokens: dict[str, str] = {}
+
+    def issue_csrf_token(session_id: str) -> str:
+        token = secrets.token_hex(16)
+        # New words in this line:
+        #   secrets.token_hex(n)  -> returns a random string of n BYTES worth
+        #        of randomness, shown as 2*n hex characters — used here as an
+        #        unguessable, per-session token embedded in every form
+        session_csrf_tokens[session_id] = token
+        return token
+
+    def handle_transfer(session_id: str, submitted_token: str) -> bool:
+        """GOOD: requires proof the request came from a page the server itself rendered."""
+        expected = session_csrf_tokens.get(session_id)
+        return expected is not None and submitted_token == expected
+
+    real_token = issue_csrf_token("session-123")
+    print("GOOD: legit request (token matches the one WE issued):", handle_transfer("session-123", real_token))
+    print("GOOD: forged request (attacker's form never saw the real token):",
+          handle_transfer("session-123", "attacker-has-no-way-to-know-this"))
+    # The forged form on evil.com CAN send the victim's cookie automatically,
+    # but it CANNOT read bank.com's page to steal the real csrf_token value —
+    # the browser's same-origin policy blocks that. That gap is the entire
+    # defense: proving the request came from a page the server itself sent,
+    # not just "some browser that happens to have our cookie."
+
+    print("""
+Flask-WTF's FlaskForm bakes this in automatically (see this file's sibling,
+16_flask_data_auth_apis.py's FLASK_WTF_NOTES) — every form gets a hidden
+csrf_token field, and form.validate_on_submit() rejects the submission if
+it's missing or wrong, without you writing the check by hand as above.
+""")
 
 
 # ---------------------------------------------------------------------------
@@ -236,6 +300,7 @@ def demo_rate_limiting():
 if __name__ == "__main__":
     demo_sql_injection()
     demo_xss()
+    demo_csrf()
     demo_secrets_management()
     demo_password_hashing()
     demo_input_validation()

@@ -155,6 +155,107 @@ def demo_dict_vs_domain_model():
 
 
 # ---------------------------------------------------------------------------
+# Immutable domain models: frozen=True
+# ---------------------------------------------------------------------------
+@dataclass(frozen=True)
+# New words in this line:
+#   @dataclass(frozen=True)  -> same @dataclass decorator, but this option
+#        makes every instance IMMUTABLE after __init__ runs: any attempt to
+#        assign to an attribute afterward raises an error instead of quietly
+#        succeeding. Compare to Book above, an ordinary (mutable) dataclass —
+#        Book.borrow() is ALLOWED to do self.available = False specifically
+#        because Book isn't frozen.
+class Money:
+    """A value object: two Money(10, 'USD') are interchangeable, so nothing
+    should ever need to mutate one in place — replacing it is always correct
+    instead."""
+    amount: int
+    currency: str
+
+    def add(self, other: "Money") -> "Money":
+        # New words in this line:
+        #   "Money" (as a type hint, in quotes)  -> a "forward reference" —
+        #        needed because Money isn't fully DEFINED yet at the point
+        #        this line is read (we're still inside its own class body),
+        #        so the type has to be given as a string for now
+        if other.currency != self.currency:
+            raise ValueError("currency mismatch")
+        return Money(self.amount + other.amount, self.currency)
+        # New words in this line:
+        #   return Money(...) (a NEW instance)  -> since Money can't be
+        #        mutated, "adding" money means building and returning a
+        #        brand-new Money instead of changing self.amount in place
+
+
+def demo_frozen_dataclass():
+    print("\n--- Immutable Domain Models (frozen=True) ---")
+
+    price = Money(1000, "USD")
+    tax = Money(80, "USD")
+    total = price.add(tax)
+    print("price:", price, "-> unchanged")
+    print("total:", total, "-> a NEW object")
+
+    try:
+        price.amount = 9999   # type: ignore
+    except Exception as e:
+        # dataclasses raises dataclasses.FrozenInstanceError here, which IS
+        # a subclass of AttributeError — catching the broader Exception type
+        # keeps this demo simple without needing a new import just to name it
+        print("Expected error (frozen instance rejects mutation):", type(e).__name__, e)
+    # Why bother: a mutable Book being passed around several functions can be
+    # silently changed by any of them, which is a common source of "who
+    # changed this?!" bugs. An immutable Money can't be — every function that
+    # touches it either uses it as-is or hands back a new one, so nothing
+    # else holding a reference to the original is ever surprised.
+
+
+# ---------------------------------------------------------------------------
+# Feature flags: ship code disabled, turn it on without a redeploy
+# ---------------------------------------------------------------------------
+class FeatureFlags:
+    """
+    Real systems (LaunchDarkly, Flagsmith, or even just a config table in the
+    DB) let you flip this at runtime without redeploying. This in-memory
+    version exists only to show the SHAPE of the pattern.
+    """
+    def __init__(self, flags: dict[str, bool] | None = None):
+        self._flags = flags or {}
+
+    def is_enabled(self, name: str) -> bool:
+        return self._flags.get(name, False)
+
+
+def list_available_books_v2(books: list[Book]) -> list[Book]:
+    """A rewritten version of BookService.list_available(), guarded by a flag."""
+    return sorted((b for b in books if b.available), key=lambda b: b.title)
+    # New words in this line:
+    #   sorted(generator, key=...)  -> sorted() accepts any iterable, not
+    #        just a list — this generator expression feeds it lazily
+
+
+def demo_feature_flags():
+    print("\n--- Feature Flags ---")
+
+    books = [Book(id="1", title="1984", author="Orwell"),
+             Book(id="2", title="Animal Farm", author="Orwell")]
+
+    flags_off = FeatureFlags({"sorted_book_listing": False})
+    flags_on = FeatureFlags({"sorted_book_listing": True})
+
+    for flags in (flags_off, flags_on):
+        if flags.is_enabled("sorted_book_listing"):
+            result = list_available_books_v2(books)
+            print("v2 (sorted) listing:", [b.title for b in result])
+        else:
+            result = [b for b in books if b.available]
+            print("v1 (original) listing:", [b.title for b in result])
+    # The payoff: the NEW code path shipped to production already, disabled.
+    # Turning it on for 5% of users, or instantly rolling it back if it
+    # misbehaves, is a config change — not a deploy.
+
+
+# ---------------------------------------------------------------------------
 # Event-driven basics: simple pub/sub instead of tightly coupled calls
 # ---------------------------------------------------------------------------
 class EventBus:
@@ -224,6 +325,8 @@ def demo_config_management():
 if __name__ == "__main__":
     demo_layered_architecture()
     demo_dict_vs_domain_model()
+    demo_frozen_dataclass()
+    demo_feature_flags()
     demo_event_driven()
 
     try:

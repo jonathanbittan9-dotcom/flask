@@ -4,9 +4,13 @@
 Section 2: Object-Oriented & Design Principles
     - Inheritance vs. composition
     - Abstract base classes / interfaces
+    - Duck typing & typing.Protocol
     - SOLID principles
     - Design patterns: Factory, Singleton, Strategy, Observer, Repository, Adapter
+    - @classmethod — alternate constructors
+    - Mixins & multiple inheritance (MRO)
     - Dataclasses, @property
+    - Idioms: naming conventions, `is` vs `==`, __init__'s return contract
 
 Run: python 02_oop_design_principles.py
 """
@@ -23,6 +27,10 @@ from dataclasses import dataclass, field
 #   field  -> a function (different from the @dataclass decorator itself)
 #             used to configure a single dataclass attribute in detail —
 #             see its use further down in this file
+from typing import Protocol
+# New words in this line:
+#   Protocol  -> a base class for defining a "structural" interface — see
+#                the Duck Typing section below for how this differs from ABC
 
 
 # ---------------------------------------------------------------------------
@@ -111,6 +119,54 @@ def demo_abc():
         #        Python itself raises this specific one when you try to
         #        instantiate an abstract class.
         print("Expected error:", e)
+
+
+# ---------------------------------------------------------------------------
+# Duck Typing & typing.Protocol — "structural" interfaces
+# ---------------------------------------------------------------------------
+# ABC above is Python's EXPLICIT way to define an interface: subclass it, or
+# Python refuses to let you instantiate the subclass. Python also supports
+# interfaces with no inheritance at all — "duck typing": if it walks like a
+# duck and quacks like a duck, treat it as a duck. Any object with the right
+# METHODS works, no matter what it inherits from.
+class Honker(Protocol):
+    def honk(self) -> str:
+        ...
+
+
+class Car2:
+    """Never mentions Honker anywhere — no inheritance relationship at all."""
+    def honk(self) -> str:
+        return "Beep!"
+
+
+class Clown:
+    """Also never mentions Honker."""
+    def honk(self) -> str:
+        return "Squeeze-honk!"
+
+
+def make_it_honk(thing: Honker) -> str:
+    # New words in this line:
+    #   thing: Honker  -> type hint saying "anything with a honk() method is
+    #        acceptable here." A type checker (like mypy) accepts Car2 and
+    #        Clown even though neither inherits from Honker. Python itself
+    #        does NOT check this at all at runtime — it's purely a promise to
+    #        tooling and human readers, unlike ABC's @abstractmethod, which
+    #        Python enforces for real when you try to instantiate a subclass
+    #        that skipped an abstract method.
+    return thing.honk()
+
+
+def demo_protocol():
+    print("\n--- Duck Typing / Protocol ---")
+    print(make_it_honk(Car2()))
+    print(make_it_honk(Clown()))
+    # Rule of thumb: reach for ABC when you want Python to actively ENFORCE
+    # "you must implement this" at instantiation time. Reach for Protocol
+    # when you just want to describe a shape of object for readability/type
+    # checkers, without forcing unrelated classes into a shared inheritance
+    # tree.
 
 
 # ---------------------------------------------------------------------------
@@ -371,6 +427,89 @@ def demo_patterns():
 
 
 # ---------------------------------------------------------------------------
+# @classmethod — alternate constructors
+# ---------------------------------------------------------------------------
+class Pizza:
+    def __init__(self, toppings: list[str]):
+        self.toppings = toppings
+
+    @classmethod
+    # New words in this line:
+    #   @classmethod  -> like @staticmethod (see BookFactory above), doesn't
+    #        take `self` — but DOES take `cls` as its first argument, the
+    #        exact same `cls` you met in __new__. Lets a method build and
+    #        return a new instance without the caller writing out __init__'s
+    #        full argument list by hand.
+    def margherita(cls):
+        return cls(["mozzarella", "basil"])
+        # New words in this line:
+        #   cls([...])  -> calling `cls` like a function builds a new
+        #        instance of whichever class this was called on — Pizza, or
+        #        even a subclass of Pizza, whichever `cls` happens to be.
+        #        This IS the point of @classmethod: a descriptively-named
+        #        "alternate constructor," instead of one crowded __init__
+        #        trying to handle every possible way to build a Pizza.
+
+    @classmethod
+    def pepperoni(cls):
+        return cls(["mozzarella", "pepperoni"])
+
+
+def demo_classmethod():
+    print("\n--- @classmethod ---")
+    print("Margherita:", Pizza.margherita().toppings)
+    print("Pepperoni:", Pizza.pepperoni().toppings)
+    # Compare to BookFactory.create() above: that @staticmethod has NO
+    # automatic access to the class at all (no self, no cls) — it's really
+    # just a regular function that happens to live inside the class for
+    # organization. @classmethod differs by receiving `cls`, which is what
+    # lets it turn around and build an instance of that class.
+
+
+# ---------------------------------------------------------------------------
+# Mixins & Multiple Inheritance
+# ---------------------------------------------------------------------------
+# A mixin is a small class that's never meant to stand on its own — it exists
+# purely to be combined with another class via multiple inheritance, bolting
+# on one focused capability.
+class JSONMixin:
+    """Reusable: any class that mixes this in gets to_json() for free."""
+    def to_json(self) -> str:
+        import json
+        return json.dumps(self.__dict__)
+        # New words in this line:
+        #   self.__dict__  -> every instance's own attribute dict (same thing
+        #        you'd see via raw.__dict__ on any freshly built object).
+        #        json.dumps() turns it into a JSON string. This works for ANY
+        #        class that mixes JSONMixin in, because it never hardcodes
+        #        attribute names — it just reads whatever's already there.
+
+
+class Employee(JSONMixin):
+    # New words in this line:
+    #   class Employee(JSONMixin)  -> single inheritance here, but the SAME
+    #        syntax extends to multiple base classes: `class Foo(A, B, C)`
+    #        combines all three at once. Employee "IS-A" nothing in
+    #        particular — it just picks up JSONMixin's behavior as an add-on.
+    def __init__(self, name: str, salary: float):
+        self.name = name
+        self.salary = salary
+
+
+def demo_mixin():
+    print("\n--- Mixins ---")
+    print(Employee("Itay", 5000).to_json())
+    # New words in this line:
+    #   MRO (Method Resolution Order)  -> when a class inherits from more
+    #        than one base and two bases define the same method name, Python
+    #        needs a rule for which one wins. It checks the class itself
+    #        first, then each base (and everything THAT base inherits from)
+    #        left to right, in the order written in the class definition.
+    #        You can see this order for any class via ClassName.__mro__.
+    print("MRO:", [c.__name__ for c in Employee.__mro__])
+
+
+# ---------------------------------------------------------------------------
 # Dataclasses & @property
 # ---------------------------------------------------------------------------
 @dataclass
@@ -424,9 +563,70 @@ def demo_dataclass_property():
         print("Expected error:", e)
 
 
+# ---------------------------------------------------------------------------
+# Idioms & Conventions — the unwritten rules, not new syntax
+# ---------------------------------------------------------------------------
+# Class names: PascalCase (AppConfig, PaymentProcessor) — never snake_case
+# (app_config) or all-lowercase (paymentmastercard). Functions, methods, and
+# variables stay snake_case (process_payment, total_books). Python doesn't
+# enforce this — nothing crashes if you ignore it — but every other Python
+# codebase you read or contribute to assumes it, so a name in the wrong case
+# reads as a beginner mistake even when the code runs fine.
+
+def demo_is_vs_equals():
+    print("\n--- `is` vs `==` ---")
+
+    class Coordinate:
+        def __init__(self, x, y):
+            self.x, self.y = x, y
+
+        def __eq__(self, other):
+            return self.x == other.x and self.y == other.y
+            # New words in this line:
+            #   __eq__  -> the dunder Python calls whenever you write
+            #        `a == b` for two objects of this class. Overriding it
+            #        lets you define what "equal" means for YOUR data (here:
+            #        same x and y), instead of the default (same object in
+            #        memory).
+
+    p1, p2 = Coordinate(1, 2), Coordinate(1, 2)
+    print("p1 is p2:", p1 is p2)   # False — two separate objects were built
+    print("p1 == p2:", p1 == p2)   # True  — __eq__ says "same x/y, close enough"
+    # This is exactly why a Singleton's __new__ check must use `is None`,
+    # never `== None`: `is` compares raw identity and can never be fooled by
+    # a class's own __eq__ override, because it doesn't call __eq__ at all.
+    # `==` on the other hand does whatever __eq__ says — which, as just
+    # shown, doesn't have to mean identity.
+
+
+def demo_init_returns_none():
+    print("\n--- __init__ always returns None ---")
+
+    class Wallet:
+        def __init__(self, amount: float) -> None:
+            # New words in this line:
+            #   -> None  -> the correct return type hint for __init__,
+            #        always. __init__'s only job is to set attributes on
+            #        `self` — it is never allowed to `return` a value
+            #        (Python raises TypeError if you try `return something`
+            #        inside __init__). Hinting it as `-> float` (an easy
+            #        mistake when you're used to regular functions returning
+            #        data) promises a float comes back, but nothing ever
+            #        does.
+            self.amount = amount
+
+    w = Wallet(80)
+    print("Wallet.__init__(w, 80) actually returned:", Wallet.__init__(w, 80))
+
+
 if __name__ == "__main__":
     demo_inheritance_vs_composition()
     demo_abc()
+    demo_protocol()
     demo_solid()
     demo_patterns()
+    demo_classmethod()
+    demo_mixin()
     demo_dataclass_property()
+    demo_is_vs_equals()
+    demo_init_returns_none()

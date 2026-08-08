@@ -33,6 +33,10 @@ to jump back to where.
 - `@dataclass`
 - `collections.Counter`, `collections.defaultdict`, `itertools.chain`
 - `time.perf_counter()` (high-resolution timer)
+- `enumerate(iterable)`, `zip(iter1, iter2, ...)`
+- `any(iterable)`, `all(iterable)`
+- Walrus operator `:=` — assign and test in one expression
+- `functools.lru_cache(maxsize=...)` — automatic memoization, `.cache_info()`
 
 ## `02_oop_design_principles.py` — Section 2: OOP & Design
 - `abc.ABC`, `@abstractmethod` — abstract base classes / interfaces
@@ -47,6 +51,12 @@ to jump back to where.
 - `dataclasses.field()` with `default=` / `repr=False`
 - `@property` and the matching `@x.setter`
 - `isinstance(value, Type)`
+- `typing.Protocol` — duck typing / structural interfaces (vs. ABC's enforced ones)
+- `@classmethod` — alternate constructors, receives `cls` (contrast with `@staticmethod`)
+- Mixins & multiple inheritance, `ClassName.__mro__` (Method Resolution Order)
+- `__eq__` override (identity `is` vs. value `==`, and why Singleton checks must use `is`)
+- Naming conventions: `PascalCase` classes vs. `snake_case` everything else
+- `__init__`'s always-`None` return contract (`-> None`, never a data type)
 
 ## `03_data_structures_algorithms.py` — Section 3: Data Structures & Algorithms
 - Numeric literal underscores (`200_000` == `200000`)
@@ -60,6 +70,9 @@ to jump back to where.
 - Tuple-swap idiom: `a, b = b, a`
 - `//` floor division
 - `sorted(iterable)`
+- `sorted(iterable, key=lambda x: ..., reverse=True)`
+- Two-pointer technique (opposite-end indices closing inward on a sorted sequence)
+- `sys.getrecursionlimit()`, `RecursionError` — Python doesn't optimize deep recursion
 
 ## `04_software_architecture.py` — Section 4: Architecture
 - `dict.values()`
@@ -67,6 +80,9 @@ to jump back to where.
 - `dict.setdefault(key, default)`
 - `os.environ.get("NAME")` for reading environment variables
 - `RuntimeError` (built-in catch-all exception)
+- `@dataclass(frozen=True)` — immutable value objects
+- Forward-reference type hints (a class referring to its own type in quotes, e.g. `"Money"`)
+- Feature flags — shipping disabled code paths, toggled by config not deploy
 
 ## `05_databases.py` — Section 5: Databases
 - `sqlite3`: `connect()`, `cursor()`, `execute()`, `fetchone()`, `fetchall()`, `.lastrowid`, `commit()`, `close()`
@@ -78,6 +94,8 @@ to jump back to where.
 - `time.strftime(format)` — formatted timestamps
 - nested generic type hints, e.g. `tuple[float, object]`
 - `del` statement (remove a dict key / list item / variable)
+- `CREATE INDEX name ON table(column)`, `EXPLAIN QUERY PLAN` (SCAN vs. SEARCH USING INDEX)
+- `.executemany(sql, list_of_param_tuples)` — bulk inserts in one call
 
 ## `06_testing_demo.py` / `06_test_testing_demo.py` — Section 6: Testing
 - `range(start, stop)` — the two-argument form of `range`
@@ -88,9 +106,15 @@ to jump back to where.
 - `pytest.raises(ExceptionType)` — asserting that code raises an exception
 - `unittest.mock.Mock()` and `.assert_called_once_with(...)` — a fake object that records how it was called
 - `importlib.import_module("name")` — importing a module by string name
+- `monkeypatch` fixture (built into pytest) — `.setenv(name, value)`, `.setattr(obj, "name", value)`, auto-restored after each test
+- `@pytest.fixture(scope="module")` — reused across a whole file instead of per-test
+- `@pytest.fixture(autouse=True)` — runs for every test without being requested by name
+- `conftest.py` convention — fixtures shared across test files automatically
 
 ## `07_version_control_notes.py` — Section 7: Git (conceptual/reference)
 - No new Python syntax — this file is a runnable cheat sheet of git commands
+- `.gitignore` — patterns git should never track (generated files, secrets)
+- Semantic versioning (`MAJOR.MINOR.PATCH`), `git tag -a vX.Y.Z`
 
 ## `08_devops/` — Section 8: DevOps
 - Dockerfile directives: `FROM`, `WORKDIR`, `COPY`, `RUN`, `ENV`, `EXPOSE`, `USER`, `CMD`
@@ -103,6 +127,7 @@ to jump back to where.
 - Passing a function as an argument to be called later (`db_ping_fn`)
 - `except Exception` — catching (almost) any exception broadly
 - The `(_ for _ in ()).throw(Exception(...))` idiom — raising an exception inside a `lambda`
+- Deployment strategies: recreate, rolling, blue-green, canary
 
 ## `09_security.py` — Section 9: Security
 - `re.compile(pattern)` / `pattern.match(string)` — regular expressions, raw strings `r"..."`
@@ -114,6 +139,8 @@ to jump back to where.
 - `html.escape(string)`
 - `time.time()` (wall-clock time) vs. `time.perf_counter()` (elapsed time)
 - List slice-assignment: `some_list[:] = [...]` (replaces contents in place)
+- `secrets.token_hex(n)` — cryptographically random tokens (vs. `random` module's predictable randomness)
+- CSRF token pattern — proving a request came from a page the server itself rendered
 
 ## `10_performance_scalability.py` — Section 10: Performance
 - `sys.stdout.reconfigure(encoding=...)` — fixing console encoding issues
@@ -123,6 +150,8 @@ to jump back to where.
 - `async def`, `await`, `asyncio.run()`, `asyncio.gather()` — async/await concurrency
 - `concurrent.futures.ThreadPoolExecutor` / `ProcessPoolExecutor` + `.map()`
 - List repetition: `[n] * 4`
+- `timeit.timeit(code_string, number=N)` — comparing two snippets head-to-head (vs. cProfile's whole-program view)
+- `sys.getsizeof(obj)` — an object's actual memory footprint
 
 ## `11_system_design.py` — Section 11: System Design
 - `min(a, b)`
@@ -130,10 +159,18 @@ to jump back to where.
 - bare `raise` (re-raises the exception currently being handled)
 - `random.uniform(a, b)` (float in a range, vs. `randint`'s integers)
 - `try` / `except` / `else` (the `else` clause runs only if no exception occurred)
+- Idempotency keys — making retries of side-effecting actions (payments) safe
+- Load balancing strategies: round robin, least connections, weighted, IP hash / consistent hashing
 
 ## `12_debugging_tooling.py` — Section 12: Debugging
 - `traceback.format_exc()` — get a traceback as a string
 - `breakpoint()` — the built-in interactive debugger entry point (Python 3.7+)
+- Post-mortem debugging: `python -m pdb -c continue script.py`, `pdb.post_mortem()` / `pdb.pm()`, IPython's `%debug`
+- `warnings.warn(msg, Category, stacklevel=...)`, `warnings.catch_warnings()`, `DeprecationWarning`
+
+## `13_professional_soft_skills.md` — Section 13: Professional / Soft Skills
+- Not code — templates and habits: PR descriptions, giving/receiving code
+  review feedback, estimating work, blameless incident postmortems, mentoring
 
 ## `14_web_fundamentals.py` — Section 14: Web Fundamentals
 - Flask `make_response()`, the `session` object, `request.cookies`
@@ -153,6 +190,10 @@ to jump back to where.
 - `@app.before_request` / `@app.after_request`, `flask.g`
 - `app.test_client()`, `client.get/post(...)`, `follow_redirects=True`
 - `os.environ["NAME"]` (raises `KeyError` if missing) vs. `.get("NAME")`
+- HTTP methods & idempotency: GET/PUT/DELETE (idempotent) vs. POST/PATCH (not, generally)
+- CORS: same-origin policy, `Access-Control-Allow-Origin`, Flask-CORS
+- `flask.current_app` — a proxy for whichever app is handling the current request
+- Application context vs. request context (`current_app`/`g` vs. `request`/`session`)
 
 ## `16_flask_data_auth_apis.py` — Section 16: Data, Auth & APIs
 - `flask_sqlalchemy.SQLAlchemy()` created app-less, then `db.init_app(app)`
@@ -165,3 +206,12 @@ to jump back to where.
 - Optional-dependency notes for `flask_login` and `flask_wtf` (what each replaces, not installed here)
 - `request.get_json(silent=True)`, `request.args.get(name, default, type=int)` (query-param pagination)
 - `client.post(url, json={...})` in `app.test_client()` — sessions/cookies persist across calls on one client
+- `db.session.rollback()` — undoing uncommitted changes after a failed `.commit()`
+- `methods=["PUT"]` / `["DELETE"]` routes, `return "", 204` (No Content)
+
+## `17_observability_and_monitoring.py` — Section 17: Observability & Monitoring
+- The three pillars: logs, metrics, traces — what each answers that the others can't
+- Counters, gauges, histograms; `p50`/`p99` percentiles vs. a plain average
+- Distributed tracing: `trace_id` (shared across a whole request) vs. `span_id` (one hop), `uuid.uuid4()`
+- SLI / SLO / SLA, and error budgets as a quantified "can we ship this risky change" gate
+- Symptom-based vs. cause-based alerts; alert fatigue

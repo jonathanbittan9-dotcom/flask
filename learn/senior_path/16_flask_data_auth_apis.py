@@ -216,6 +216,67 @@ def api_get_book(book_id):
     return jsonify(book.as_dict())
 
 
+@app.route("/api/books/<int:book_id>", methods=["PUT"])
+@login_required
+def api_update_book(book_id):
+    """PUT replaces the whole resource — see 14_web_fundamentals.py's HTTP
+    methods notes for why PUT (unlike POST) is expected to be idempotent:
+    sending the exact same body twice should leave the book in the same
+    state either time, not create a second one or error on the retry."""
+    book = db.session.get(Book, book_id)
+    if book is None:
+        return jsonify(error="not found"), 404
+
+    data = request.get_json(silent=True)
+    if not data or "title" not in data:
+        return jsonify(error="title required"), 400
+
+    try:
+        book.title = data["title"]
+        db.session.commit()
+        return jsonify(book.as_dict())
+    except Exception:
+        db.session.rollback()
+        # New words in this line:
+        #   db.session.rollback()  -> undoes any UNCOMMITTED changes staged
+        #        on this session, resetting it to a clean state. Needed here
+        #        because if .commit() itself fails partway through (e.g. a
+        #        constraint violation), the session is left in a "pending
+        #        failure" state — further queries on it raise confusing
+        #        errors unrelated to the ORIGINAL problem until rollback()
+        #        clears it. Every earlier db.session.commit() in this file
+        #        skipped this because the demo data never actually fails —
+        #        real code guards every commit this way.
+        return jsonify(error="update failed"), 500
+
+
+@app.route("/api/books/<int:book_id>", methods=["DELETE"])
+@login_required
+def api_delete_book(book_id):
+    book = db.session.get(Book, book_id)
+    if book is None:
+        return jsonify(error="not found"), 404
+        # New words in this line:
+        #   404 here, not 204  -> DELETE is idempotent in INTENT (deleting an
+        #        already-gone resource shouldn't be treated as a NEW error),
+        #        but this demo still reports 404 for a book that was never
+        #        there in the first place, vs 204 for one that WAS just
+        #        deleted successfully — a real API's exact convention here
+        #        varies, but the response should be predictable either way.
+
+    db.session.delete(book)
+    # New words in this line:
+    #   db.session.delete(obj)  -> stages obj for deletion (same "nothing
+    #        touches the database until commit()" rule as session.add()
+    #        elsewhere in this file)
+    db.session.commit()
+    return "", 204
+    # New words in this line:
+    #   return "", 204  -> (body, status) tuple again, same pattern as
+    #        api_error handlers elsewhere — 204 No Content means "succeeded,
+    #        nothing to send back"
+
+
 def seed_data():
     author = Author(name="Orwell")
     db.session.add(author)
@@ -250,6 +311,19 @@ def demo_test_client():
     resp = client.post("/api/books", json={"title": "Animal Farm", "author_id": 1})
     assert resp.status_code == 201
     print("POST /api/books (logged in) ->", resp.status_code, resp.get_json())
+    new_book_id = resp.get_json()["id"]
+
+    resp = client.put(f"/api/books/{new_book_id}", json={"title": "Animal Farm (2nd ed.)"})
+    assert resp.status_code == 200
+    print(f"PUT /api/books/{new_book_id} ->", resp.status_code, resp.get_json())
+
+    resp = client.delete(f"/api/books/{new_book_id}")
+    assert resp.status_code == 204
+    print(f"DELETE /api/books/{new_book_id} ->", resp.status_code)
+
+    resp = client.get(f"/api/books/{new_book_id}")
+    assert resp.status_code == 404   # confirms the delete actually happened
+    print(f"GET /api/books/{new_book_id} (after delete) ->", resp.status_code, resp.get_json())
 
 
 if __name__ == "__main__":

@@ -510,6 +510,112 @@ def demo_stdlib():
 
 
 # ---------------------------------------------------------------------------
+# 11. enumerate(), zip(), any(), all()
+# ---------------------------------------------------------------------------
+def demo_enumerate_zip_any_all():
+    print("\n--- enumerate, zip, any, all ---")
+
+    titles = ["1984", "Dune", "Foundation"]
+
+    for index, title in enumerate(titles):
+        # New words in this line:
+        #   enumerate(iterable)  -> wraps an iterable so each item comes out
+        #        paired with its position: (0, "1984"), (1, "Dune"), ... The
+        #        alternative, `for i in range(len(titles)): titles[i]`, works
+        #        but is considered unidiomatic Python — enumerate says the
+        #        same thing more directly.
+        print(f"  {index}: {title}")
+
+    authors = ["Orwell", "Herbert", "Asimov"]
+    for title, author in zip(titles, authors):
+        # New words in this line:
+        #   zip(iter1, iter2, ...)  -> walks multiple iterables IN PARALLEL,
+        #        yielding one tuple per position: ("1984", "Orwell"), ("Dune",
+        #        "Herbert"), ... Stops as soon as the SHORTEST input runs out,
+        #        even if the others have more items left.
+        print(f"  {title} by {author}")
+
+    availability = [True, False, True]
+    print("any available:", any(availability))
+    # New words in this line:
+    #   any(iterable)  -> built-in function: True if AT LEAST ONE item is
+    #        truthy, False if every item is falsy (an empty iterable -> False)
+    print("all available:", all(availability))
+    # New words in this line:
+    #   all(iterable)  -> built-in function: True only if EVERY item is
+    #        truthy (an empty iterable -> True, perhaps surprisingly — there's
+    #        no item to fail the check)
+
+
+# ---------------------------------------------------------------------------
+# 12. The Walrus Operator (:=)
+# ---------------------------------------------------------------------------
+def demo_walrus():
+    print("\n--- Walrus operator := ---")
+
+    catalog = {"1984": True, "Dune": False, "Foundation": True}
+
+    # Without walrus: .get() gets called, then checked, as two separate steps
+    result = catalog.get("1984")
+    if result is not None:
+        print("without walrus:", result)
+
+    # With walrus: assign AND test the value in the same expression
+    if (result := catalog.get("Dune")) is not None:
+        # New words in this line:
+        #   (name := expr)  -> the walrus operator (Python 3.8+): evaluates
+        #        expr, assigns it to `name`, AND the whole parenthesized thing
+        #        evaluates to that same value — so it can sit directly inside
+        #        an `if` condition instead of needing a separate assignment
+        #        line above it. The parentheses around it are required syntax
+        #        here, not optional style.
+        print("with walrus:", result)
+
+    # Common real use: avoid calling an expensive function twice
+    long_titles = [t for t in catalog if (length := len(t)) > 5]
+    print("titles longer than 5 chars:", long_titles, "(len computed once per title, not twice)")
+
+
+# ---------------------------------------------------------------------------
+# 13. functools.lru_cache — automatic memoization
+# ---------------------------------------------------------------------------
+@functools.lru_cache(maxsize=None)
+# New words in this line:
+#   @functools.lru_cache(maxsize=...)  -> a decorator (same @ syntax as
+#        @timer above) that automatically remembers this function's return
+#        value for each distinct set of arguments it's called with — the
+#        SAME idea as the hand-written `cache = {}` dict you'll build
+#        yourself in 03_data_structures_algorithms.py's fib_memo(), except
+#        the standard library does the caching for you
+#   maxsize=None  -> no limit on how many distinct argument-combinations get
+#        cached (pass a number instead to cap it, evicting least-recently-used
+#        entries once full — the same idea as 11_system_design.py's LRUCache)
+def slow_square(n):
+    time.sleep(0.1)   # pretend this is expensive
+    return n * n
+
+
+def demo_lru_cache():
+    print("\n--- functools.lru_cache ---")
+
+    start = time.perf_counter()
+    slow_square(5)
+    first_call = time.perf_counter() - start
+
+    start = time.perf_counter()
+    slow_square(5)   # same argument as before -> returns the cached result instantly
+    second_call = time.perf_counter() - start
+
+    print(f"first call:  {first_call:.4f}s (actually ran)")
+    print(f"second call: {second_call:.4f}s (served from cache)")
+    print("cache info:", slow_square.cache_info())
+    # New words in this line:
+    #   .cache_info()  -> every lru_cache-wrapped function gets this method
+    #        for free, reporting hits/misses/current size — useful for
+    #        confirming the cache is actually doing something
+
+
+# ---------------------------------------------------------------------------
 # Run everything
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
@@ -523,3 +629,6 @@ if __name__ == "__main__":
     demo_exceptions()
     demo_type_hints()
     demo_stdlib()
+    demo_enumerate_zip_any_all()
+    demo_walrus()
+    demo_lru_cache()
