@@ -20,11 +20,13 @@ amount_charged = paymentmastercard(80)
 @app.route("/pay")
 def payment_process():
     try:
-        log.info("returned the payment of the user🤑")
-        return render_template("practice.html" , amount=amount_charged)
-    except SyntaxError:
+        log.info("trying to return the payment of the user...")
+        respone = render_template("practice.html" , amount=amount_charged)
+        log.info("returned the the payment of the user🤑")
+
+    except Exception:
          log.exception("failed to return the payment of the user❌")
-         return render_template()
+         return render_template("errorpage.html")
 # class login_system:
 
 
