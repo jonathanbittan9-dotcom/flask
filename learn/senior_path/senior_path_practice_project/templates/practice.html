@@ -6,8 +6,12 @@
     <title>Document</title>
 </head>
 <body>
-    {% if amount }
+    {% if amount %}
         <p>{{ amount }}</p>
+    {% endif %}
+
+    {% if messages %}
+        <p>{{ messages }}</p>
     {% endif %}
     </body>
 </html>

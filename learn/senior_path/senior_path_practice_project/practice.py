@@ -5,6 +5,7 @@ import bot
 from config import app_config
 from logs_setup import log
 from typing import Protocol
+from jinja2 import TemplateNotFound
 app = Flask(__name__)
 
 format=("[%(levelname)s] %(message)s")
@@ -30,6 +31,41 @@ def payment_process():
          return render_template("errorpage.html")
 # class login_system:
 
+class messages(Protocol):
+     def send(self, message_kind):
+          ...
+
+class Whatsapp(messages):
+     def send(self, message_kind):
+          return f"whatsapp: {message_kind}"
+
+class discord(messages):
+     def send(self, message_kind):
+          return f"discord: {message_kind}"
+
+# messages_popping_whatsapp = whatsapp().send("You got 25 messages from whatsapp")
+# messages_popping_discord = discord().send("You got 36 messages from discord")
+
+@app.route("/messages")
+def messages_return():
+    class ReturningMessages(Whatsapp , discord , messages):
+            super().__init__(messages, Whatsapp, discord)
+            def __init__ (self, messages_count):
+                  self.messages_count = messages_count
+            def __repr__(messages_count) -> str:
+                  return f"{Whatsapp} has {messages_count} notifications"
+            def __repr__(messages_count):
+                 return f"{discord} has {messages_count} notifications "
+    try:
+        response = render_template("practice.html" , messages=messages_popping_whatsapp)
+        log.info("returned the messages of whatsapp💬")
+        return response
+    except  TypeError:
+        log.exception("TypeError‼️")
+        return render_template("errorpage.html")
+    except TemplateNotFound:
+        log.exception("Tempalte errorpage.html cannot be found❌")
+        return render_template("errorpage.html")
 if __name__ == "__main__":
     log.info("the system ran ✔️")
     app.run(debug=True)
