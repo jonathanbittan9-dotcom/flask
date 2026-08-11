@@ -215,3 +215,11 @@ to jump back to where.
 - Distributed tracing: `trace_id` (shared across a whole request) vs. `span_id` (one hop), `uuid.uuid4()`
 - SLI / SLO / SLA, and error budgets as a quantified "can we ship this risky change" gate
 - Symptom-based vs. cause-based alerts; alert fatigue
+
+## `18_inheritance_deep_dive.py` — Section 18: Inheritance Deep Dive
+(A focused expansion of the inheritance corner of `02_oop_design_principles.py` — nothing here contradicts that file, it just goes slower and further on this one topic.)
+- Calling a parent method directly, `ParentClass.method(self, ...)` — the explicit alternative to `super()`, and why `super()` is preferred (it follows the MRO; a hardcoded class name doesn't)
+- Diamond inheritance (`D(B, C)` where both `B` and `C` inherit from `A`) and *cooperative* `super()` — each class's `super()` call goes to the next class in the actual instance's MRO, not necessarily to its own direct parent
+- `issubclass(ClassA, ClassB)` — compares two classes to each other (vs. `isinstance`, which compares an instance to a class)
+- Stacking `@property` under `@abstractmethod` — forces subclasses to implement an abstract *property*, not just a method
+- Liskov Substitution violated in practice: an override with an incompatible signature (extra required argument) breaks callers written against the base class

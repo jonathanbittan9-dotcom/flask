@@ -58,3 +58,9 @@ print(isinstance(car, Motorcycle))  #boolean situatuin
 # 2. After bike.drive() and bike.wheelie(), what is bike.fuel?
 # 3. Would car.wheelie() work? Why or why not?
 # 4. What do the three isinstance() calls print, and why?
+
+
+########### answers #############
+
+# 1. car.honk will print: Toyota goes Beep!
+# it is different from bike.honk() because it is going to the class Car and then going to the class veichle , and recieving a different sentence.

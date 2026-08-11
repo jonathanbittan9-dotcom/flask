@@ -43,21 +43,21 @@ class discord(messages):
      def send(self, message_kind):
           return f"discord: {message_kind}"
 
-# messages_popping_whatsapp = whatsapp().send("You got 25 messages from whatsapp")
-# messages_popping_discord = discord().send("You got 36 messages from discord")
+messages_popping_whatsapp = Whatsapp().send("You got 25 messages from whatsapp")
+messages_popping_discord = discord().send("You got 36 messages from discord")
 
 @app.route("/messages")
 def messages_return():
     class ReturningMessages(Whatsapp , discord , messages):
             super().__init__(messages, Whatsapp, discord)
-            def __init__ (self, messages_count):
+            def __init__ (self, messages_count) -> str:
                   self.messages_count = messages_count
             def __repr__(messages_count) -> str:
                   return f"{Whatsapp} has {messages_count} notifications"
-            def __repr__(messages_count):
+            def __repr__(messages_count) -> str:
                  return f"{discord} has {messages_count} notifications "
     try:
-        response = render_template("practice.html" , messages=messages_popping_whatsapp)
+        response = render_template("practice.html" , messages=ReturningMessages)
         log.info("returned the messages of whatsapp💬")
         return response
     except  TypeError:
@@ -66,6 +66,36 @@ def messages_return():
     except TemplateNotFound:
         log.exception("Tempalte errorpage.html cannot be found❌")
         return render_template("errorpage.html")
+
+
+class animal:
+    def __init__(self, name: str):
+          self.name = name
+          self.isalive = True
+    def move(self) -> str:
+        return f"{self.name} is now moving"
+    def eat(self) -> str:
+         return f"{self.name} is now eating"
+    def swim(self) -> str:
+         return f"{self.name} is now swimming"
+
+class fish(animal):
+    def __init__(self , name: str , breed: str):
+            super().__init__(name)
+            self.breed = breed
+class dog(animal):
+     def __init__(self , name: str , breed: str):
+          super().__init__(name)
+          self.breed = breed
+
+
+
+@app.route("/animals")
+def animals_view() -> str:
+    d = dog("lasca", "husky")
+    f = fish("nemo", "clownfish")
+    return render_template("practice.html",dog.move() ,fish.swim() , dog=d, fish=f)
+ 
 if __name__ == "__main__":
     log.info("the system ran ✔️")
     app.run(debug=True)
