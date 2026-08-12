@@ -127,6 +127,18 @@ class D(B, C):
 
 log.info( [cls.__name__ for cls in D.__mro__])
 
+class shape(ABC):
+    @abstractmethod
+    def area(self) -> float:
+        ...
+
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        ...
+
+
+
 if __name__ == "__main__":
     log.info("the system ran ✔️")
     app.run(debug=True)

@@ -223,3 +223,16 @@ to jump back to where.
 - `issubclass(ClassA, ClassB)` — compares two classes to each other (vs. `isinstance`, which compares an instance to a class)
 - Stacking `@property` under `@abstractmethod` — forces subclasses to implement an abstract *property*, not just a method
 - Liskov Substitution violated in practice: an override with an incompatible signature (extra required argument) breaks callers written against the base class
+
+## `19_advanced_oop.py` — Section 19: Advanced OOP
+- Descriptors: `__get__`/`__set__`/`__set_name__` — the reusable machinery `@property` is built on
+- `__slots__` — restricts instance attributes, drops the per-instance `__dict__`
+- `functools.total_ordering` — derives the rest of `__lt__`/`__le__`/`__gt__`/`__ge__` from `__eq__` + one comparison
+- Defining `__eq__` without `__hash__` makes instances unhashable (Python sets `__hash__ = None` automatically)
+- The iterator protocol by hand: `__iter__` returning `self`, `__next__` raising `StopIteration`
+- `__call__` — making an instance invocable like a function
+- `type(name, bases, namespace)` — the 3-argument form of `type()`, dynamically constructing a class (what `class Foo:` compiles down to)
+- Custom metaclasses: `class Meta(type):` overriding `__new__`, hooking into class *creation* itself
+- `__init_subclass__` — the lightweight, no-metaclass hook for reacting to subclass creation
+- ABC (nominal typing, explicit inheritance required) vs. `Protocol` (structural typing, matching methods are enough — no inheritance needed, and usually shouldn't be used)
+- Strategy pattern: composition (`self.channels = [...]`) instead of multiple inheritance, to combine independent behaviors without an MRO to reason about
