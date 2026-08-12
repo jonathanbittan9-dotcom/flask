@@ -104,7 +104,28 @@ def animals_view() -> str:
     except TemplateSyntaxError:
         log.exception( "Failed to syntax with the tempalte❌")
         return render_template("error.html")
+    
 
+class A:
+    def who(self) -> str:
+        return "A"
+
+
+class B(A):
+    def who(self) -> str:
+        return "B -> " + super().who()
+
+
+class C(A):
+    def who(self) -> str:
+        return "C -> " + super().who()
+
+
+class D(B, C):
+    def who(self) -> str:
+        return "D -> " + super().who()
+
+log.info( [cls.__name__ for cls in D.__mro__])
 
 if __name__ == "__main__":
     log.info("the system ran ✔️")
