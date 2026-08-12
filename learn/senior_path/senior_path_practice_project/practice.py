@@ -5,7 +5,7 @@ import bot
 from config import app_config
 from logs_setup import log
 from typing import Protocol
-from jinja2 import TemplateNotFound
+from jinja2 import TemplateNotFound , TemplateSyntaxError
 app = Flask(__name__)
 
 format=("[%(levelname)s] %(message)s")
@@ -92,10 +92,20 @@ class dog(animal):
 
 @app.route("/animals")
 def animals_view() -> str:
-    d = dog("lasca", "husky")
-    f = fish("nemo", "clownfish")
-    return render_template("practice.html",dog.move() ,fish.swim() , dog=d, fish=f)
- 
+    try:
+        d = dog("lasca", "husky")
+        f = fish("nemo", "clownfish")
+        respsone =  render_template("practice.html",  dog=d.move()  , fish = f.swim())
+        log.info("returned the data of the animals😺")
+        return respsone
+    except TypeError:
+         log.exception("TypeError‼️")
+         return render_template("errorpage.html")
+    except TemplateSyntaxError:
+        log.exception( "Failed to syntax with the tempalte❌")
+        return render_template("error.html")
+
+
 if __name__ == "__main__":
     log.info("the system ran ✔️")
     app.run(debug=True)
