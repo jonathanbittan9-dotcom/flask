@@ -1,8 +1,5 @@
 from abc import ABC, abstractmethod
 from flask import Flask , render_template
-import json
-import bot
-from config import app_config
 from logs_setup import log
 from typing import Protocol
 from jinja2 import TemplateNotFound , TemplateSyntaxError
@@ -127,9 +124,12 @@ class D(B, C):
 
 log.info( [cls.__name__ for cls in D.__mro__])
 
-class shape(ABC):
+class list_handling(ABC):
     @abstractmethod
-    def area(self) -> float:
+    def pants(self) -> str:
+        ...
+
+    def shirts(self) -> str:
         ...
 
     @property
@@ -137,8 +137,18 @@ class shape(ABC):
     def name(self) -> str:
         ...
 
-
-
+class laundry(list_handling):
+    def __init__(self, shirts_to_do: int , pants_to_do: int):
+          self.shirts_to_do = shirts_to_do
+          self.pants_to_do = pants_to_do
+    def pants(self):
+        reponse =  f"there are {self.pants_to_do} pants to get to luandry"
+        log.info("returned the amount of pants that need to get to the luandry👖")
+        return reponse
+    def shirts(self):
+        response = f"there are {self.shirts_to_do} to get to luandry"
+        log.info("returned the amount of shirts that need to get to the luandry👕")
+        return response
 if __name__ == "__main__":
     log.info("the system ran ✔️")
-    app.run(debug=True)
+    app.run(debug=True , host='0.0.0.0', port=3000)
