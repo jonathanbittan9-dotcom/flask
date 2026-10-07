@@ -1,8 +1,0 @@
-{
-  "recommendations": [
-    "ms-python.python",
-    "ms-python.debugpy",
-    "samuelcolvin.jinjahtml",
-    "ms-vscode.live-server"
-  ]
-}
