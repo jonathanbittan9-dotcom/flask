@@ -7,3 +7,7 @@ app = Flask(__name__)
 @app.get("/")
 def hello():
     return "Hello from Flask!"
+
+@app.route("/about")
+def about():
+    return "this server is for learning"
