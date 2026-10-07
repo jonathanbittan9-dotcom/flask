@@ -1,0 +1,602 @@
+{
+  "info": {
+    "name": "Flask Course",
+    "description": "Requests for every lesson. Select the 'Local' environment first.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00 Setup",
+      "description": "Run: flask --app lessons/00-setup/hello.py run --debug",
+      "item": [
+        {
+          "name": "Hello",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "01 HTTP",
+      "description": "Run: flask --app lessons/01-http-and-first-route/demo.py run --debug",
+      "item": [
+        {
+          "name": "Plain text",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": []
+            }
+          }
+        },
+        {
+          "name": "Health (JSON)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"body is {status: ok}\", () => pm.expect(pm.response.json()).to.eql({ status: \"ok\" }));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List as JSON",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/fruits",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "fruits"
+              ]
+            }
+          }
+        },
+        {
+          "name": "201 example",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/status-codes/201",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "status-codes",
+                "201"
+              ]
+            }
+          }
+        },
+        {
+          "name": "404 example",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/status-codes/404",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "status-codes",
+                "404"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Custom headers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/headers",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "headers"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Only POST (send as GET to see 405)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/only-post",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "only-post"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Only POST (correct)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/only-post",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "only-post"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Request info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/request-info",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "request-info"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 Routing",
+      "description": "Run: flask --app lessons/02-routing-and-params/demo.py run --debug",
+      "item": [
+        {
+          "name": "List books",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/books?genre=scifi&limit=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "books"
+              ],
+              "query": [
+                {
+                  "key": "genre",
+                  "value": "scifi"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Bad limit (400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/books?limit=banana",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "books"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "banana"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get book by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/books/:book_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "books",
+                ":book_id"
+              ],
+              "variable": [
+                {
+                  "key": "book_id",
+                  "value": "2"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Book that doesn't exist",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/books/:book_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "books",
+                ":book_id"
+              ],
+              "variable": [
+                {
+                  "key": "book_id",
+                  "value": "99"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Converter mismatch (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/books/abc",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "books",
+                "abc"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Float converter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/temperature/:celsius",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "temperature",
+                ":celsius"
+              ],
+              "variable": [
+                {
+                  "key": "celsius",
+                  "value": "36.6"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Repeated query key",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tags?tag=python&tag=flask",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "tags"
+              ],
+              "query": [
+                {
+                  "key": "tag",
+                  "value": "python"
+                },
+                {
+                  "key": "tag",
+                  "value": "flask"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Query values are strings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/echo-args?age=17&active=true",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "echo-args"
+              ],
+              "query": [
+                {
+                  "key": "age",
+                  "value": "17"
+                },
+                {
+                  "key": "active",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 JSON",
+      "description": "Run: flask --app lessons/03-json/demo.py run --debug",
+      "item": [
+        {
+          "name": "Echo JSON",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/echo",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "echo"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"jonathan\",\n    \"password\": \"123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Create product",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Keyboard\",\n    \"price\": 49.9\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", () => pm.response.to.have.status(201));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"returns the product with an id\", () => {",
+                  "    pm.expect(body.name).to.eql(\"Keyboard\");",
+                  "    pm.expect(body).to.have.property(\"id\");",
+                  "});",
+                  "pm.test(\"Location header points at it\", () => {",
+                  "    pm.expect(pm.response.headers.get(\"Location\")).to.eql(`/products/${body.id}`);",
+                  "});",
+                  "",
+                  "// Save the id so \"Get created product\" can use {{product_id}}.",
+                  "pm.collectionVariables.set(\"product_id\", body.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get created product",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products/{{product_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products",
+                "{{product_id}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"it's the product we created\", () => {",
+                  "    pm.expect(pm.response.json().id).to.eql(Number(pm.collectionVariables.get(\"product_id\")));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Invalid: price is a string",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Mouse\",\n    \"price\": \"20\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"explains the problem\", () => pm.expect(pm.response.json().error).to.eql(\"price must be a number\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invalid: missing fields",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Invalid: body is a list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[\"Mouse\", 20]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "product_id",
+      "value": ""
+    }
+  ]
+}

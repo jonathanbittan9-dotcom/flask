@@ -5,9 +5,11 @@ app = Flask(__name__)
 
 
 @app.get("/")
-def hello():
+def hello() -> None:
     return "Hello from Flask!"
 
 @app.route("/about")
-def about():
-    return "this server is for learning"
+def about() -> None:
+    return {"purpose": "this server is for learning"}
+
+
